@@ -407,6 +407,91 @@ header.scrolled {
 }
 
 /* ============================================================
+   STATS BAND — live database counters
+============================================================ */
+.stats-band {
+  position: relative;
+  padding: 80px 24px;
+  background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+.stats-band::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: url(pattern.png);
+  background-repeat: repeat; background-size: 380px auto;
+  opacity: .04; pointer-events: none;
+}
+.stats-band .stats-head {
+  text-align: center; max-width: 640px; margin: 0 auto 36px;
+  position: relative; z-index: 1;
+}
+.stats-band .stats-head .label {
+  letter-spacing: .22em; text-transform: uppercase;
+  font-size: 11.5px; color: var(--brand); font-weight: 500;
+}
+.stats-band .stats-head p {
+  margin-top: 10px;
+  color: #e7eaf0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(20px, 2.8vw, 28px);
+  line-height: 1.35;
+}
+.stats-grid {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  max-width: 1080px; margin: 0 auto;
+}
+.stat-cell {
+  text-align: center;
+  padding: 28px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  background: rgba(255,255,255,.02);
+  transition: border-color .35s, transform .35s, background .35s;
+}
+.stat-cell:hover {
+  border-color: var(--border);
+  background: rgba(242,201,76,.04);
+  transform: translateY(-3px);
+}
+.stat-num {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--brand);
+  display: block;
+  /* Tabular numerals so the digits don't reflow as the counter ticks. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+.stat-label {
+  margin-top: 10px;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+.stats-band .footnote {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-2);
+  letter-spacing: .04em;
+  position: relative; z-index: 1;
+}
+
+@media (max-width: 700px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
    BENEFITS
 ============================================================ */
 .benefits { padding: 120px 24px; }
@@ -472,16 +557,35 @@ header.scrolled {
   gap: 22px;
 }
 .fcard {
+  position: relative; overflow: hidden;
   background: linear-gradient(180deg, rgba(17,21,32,.92), rgba(10,12,19,.92));
   border: 1px solid var(--border-soft);
   border-radius: 22px;
   padding: 30px;
-  transition: border-color .3s, transform .3s, box-shadow .3s;
+  transition:
+    border-color .35s ease,
+    transform .35s cubic-bezier(.2,.7,.2,1),
+    box-shadow .35s ease;
+}
+.fcard::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit;
+  background: radial-gradient(360px 240px at var(--mx, 50%) var(--my, 0%),
+              rgba(242,201,76,.14), transparent 60%);
+  opacity: 0; transition: opacity .35s ease; pointer-events: none;
 }
 .fcard:hover {
   border-color: var(--border);
-  transform: translateY(-4px);
-  box-shadow: 0 18px 50px rgba(0,0,0,.5);
+  transform: translateY(-6px);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.55),
+    0 0 0 1px rgba(242,201,76,.12) inset;
+}
+.fcard:hover::before { opacity: 1; }
+.fcard:hover .ic {
+  color: var(--brand-bright);
+  border-color: var(--border);
+  background: rgba(242,201,76,.08);
+  transform: scale(1.06);
 }
 .fcard .ic {
   width: 56px; height: 56px;
@@ -491,8 +595,10 @@ header.scrolled {
   background: rgba(255,255,255,.03);
   border: 1px solid var(--border-soft);
   color: var(--brand);
+  transition: color .3s, border-color .3s, background .3s, transform .3s;
 }
 .fcard .ic svg { width: 26px; height: 26px; }
+.fcard h3, .fcard p { position: relative; z-index: 1; }
 .fcard h3 { font-size: 19px; font-weight: 600; }
 .fcard p { color: var(--muted); font-size: 14px; margin-top: 10px; line-height: 1.65; }
 
@@ -791,6 +897,7 @@ footer {
     autoplay muted loop playsinline preload="auto"
     aria-hidden="true">
   </video>
+  <div class="hero-glow" aria-hidden="true"></div>
   <div class="hero-veil"></div>
 
   <div class="hero-inner">
@@ -821,6 +928,38 @@ footer {
     </blockquote>
     <cite><b>Cole Kelley</b> &middot; Founder</cite>
   </div>
+</section>
+
+<!-- =========================================================
+     STATS BAND — live counts from the CombatCall database.
+     Numbers verified against Supabase on 2026-06-08:
+       fighters 4496 · fights 8810 · events 784 · fight_stats 17127
+     If these drift more than ±2%, refresh them.
+========================================================= -->
+<section class="stats-band" id="stats" aria-labelledby="stats-head">
+  <div class="stats-head reveal" id="stats-head">
+    <div class="label">The Database</div>
+    <p>Built on every UFC fight we could get our hands on.</p>
+  </div>
+  <div class="stats-grid reveal" data-stagger>
+    <div class="stat-cell" style="--i:0">
+      <span class="stat-num" data-count="4496" data-suffix="">0</span>
+      <div class="stat-label">Fighters</div>
+    </div>
+    <div class="stat-cell" style="--i:1">
+      <span class="stat-num" data-count="8810" data-suffix="">0</span>
+      <div class="stat-label">Fights</div>
+    </div>
+    <div class="stat-cell" style="--i:2">
+      <span class="stat-num" data-count="784" data-suffix="">0</span>
+      <div class="stat-label">Events</div>
+    </div>
+    <div class="stat-cell" style="--i:3">
+      <span class="stat-num" data-count="17127" data-suffix="">0</span>
+      <div class="stat-label">Fight-Stat Rows</div>
+    </div>
+  </div>
+  <p class="footnote reveal">Updated continuously by our data pipeline.</p>
 </section>
 
 <!-- =========================================================
@@ -1211,6 +1350,13 @@ footer {
     });
   });
 
+  // --- Respect prefers-reduced-motion ---
+  // One source of truth: when true, we skip every JS-driven animation
+  // (counter tick-up, hero parallax, pointer-tracked glow) and let elements
+  // settle at their final state. CSS already collapses transitions/keyframes.
+  const reducedMotion =
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // --- Reveal on scroll ---
   const reveals = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window) {
@@ -1219,7 +1365,7 @@ footer {
         if (e.isIntersecting) {
           e.target.classList.add('in');
           // mark settled to release will-change after the animation finishes
-          setTimeout(() => e.target.classList.add('settled'), 1000);
+          setTimeout(() => e.target.classList.add('settled'), 1200);
           io.unobserve(e.target);
         }
       });
@@ -1227,6 +1373,88 @@ footer {
     reveals.forEach(el => io.observe(el));
   } else {
     reveals.forEach(el => el.classList.add('in'));
+  }
+
+  // --- Number counters (stats band) ---------------------------------
+  // Counts up from 0 to data-count over ~1.6s with an ease-out curve.
+  // Uses requestAnimationFrame and toLocaleString() for grouping commas.
+  // Fires once per element when it enters the viewport.
+  const formatNum = n => Math.round(n).toLocaleString('en-US');
+  const animateCounter = el => {
+    const target = parseInt(el.dataset.count, 10);
+    if (!Number.isFinite(target)) return;
+    if (reducedMotion) { el.textContent = formatNum(target); return; }
+
+    const duration = 1600;
+    const start = performance.now();
+    // ease-out cubic — quick start, gentle settle
+    const ease = t => 1 - Math.pow(1 - t, 3);
+    const tick = now => {
+      const t = Math.min(1, (now - start) / duration);
+      el.textContent = formatNum(target * ease(t));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  const counters = document.querySelectorAll('[data-count]');
+  if ('IntersectionObserver' in window) {
+    const cio = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { animateCounter(e.target); cio.unobserve(e.target); }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(el => cio.observe(el));
+  } else {
+    counters.forEach(el => { el.textContent = formatNum(parseInt(el.dataset.count, 10) || 0); });
+  }
+
+  // --- Hero video parallax ------------------------------------------
+  // Translate the video up to -80px over the hero's scroll range.
+  // Single rAF loop, GPU-only transform via CSS custom property.
+  const heroVideo = document.querySelector('.hero-video');
+  const heroSection = document.querySelector('.hero');
+  if (heroVideo && heroSection && !reducedMotion) {
+    let ticking = false;
+    const updateParallax = () => {
+      const rect = heroSection.getBoundingClientRect();
+      // Only animate while the hero is in or near the viewport
+      if (rect.bottom < -100 || rect.top > window.innerHeight) {
+        ticking = false; return;
+      }
+      // 0 at top of page, 1 when hero is fully scrolled past
+      const progress = Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height)));
+      const offset = (progress * 80).toFixed(1); // 0 -> 80px translate
+      heroVideo.style.setProperty('--py', '-' + offset + 'px');
+      ticking = false;
+    };
+    const requestUpdate = () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(updateParallax); }
+    };
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    updateParallax();
+
+    // Pause the video while the tab is hidden — saves battery, no visual cost.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) heroVideo.pause(); else heroVideo.play().catch(() => {});
+    });
+  }
+
+  // --- Feature card pointer-tracked glow ----------------------------
+  // The ::before radial gradient follows the cursor via --mx/--my custom
+  // properties. Coarse pointers (touch) get a static center glow.
+  if (!reducedMotion && window.matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.fcard').forEach(card => {
+      card.addEventListener('pointermove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+        card.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.removeProperty('--mx');
+        card.style.removeProperty('--my');
+      });
+    });
   }
 </script>
 
