@@ -1445,8 +1445,10 @@ footer {
   const conn = navigator.connection || navigator.webkitConnection || {};
   const slowConn = ['slow-2g', '2g', '3g'].includes(conn.effectiveType);
   const dataSaver = conn.saveData === true;
-  const isMobileViewport = window.matchMedia('(max-width: 880px)').matches;
-  const shouldLoadVideo = !reducedMotion && !slowConn && !dataSaver && !isMobileViewport;
+  // Cole calls the hero video pivotal — load it on mobile too, not just desktop.
+  // We still bail on reduced-motion preference, slow connections, and data-saver,
+  // which keeps the fallback path alive for users who legitimately can't afford it.
+  const shouldLoadVideo = !reducedMotion && !slowConn && !dataSaver;
 
   let heroVideo = null;
   if (shouldLoadVideo && heroSlot) {
