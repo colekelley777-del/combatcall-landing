@@ -18,23 +18,31 @@
   CombatCall landing page — static, no build step.
 
   How to edit copy:
-    • Each section is wrapped in <!-- SECTION: NAME --> comments. Just search.
-    • Almost all visible text is in the HTML below (no JS-rendered copy).
-    • FAQ items are <details> elements — duplicate one to add a new Q+A.
-    • Pricing cards are two .plan blocks — edit price, features, CTA text inline.
+    - Each section is wrapped in SECTION marker comments. Search the file.
+    - Almost all visible text is in the HTML below (no JS-rendered copy).
+    - FAQ items are native details elements; duplicate one to add a Q+A.
+    - Pricing cards are two .plan blocks; edit price, features, CTA inline.
 
   Assets in this repo:
-    • logo.png            — wordmark used in header
-    • mark.png            — octagon mark (decorative)
-    • landing-hero-video.mp4 — hero background video (muted, autoplay, loop)
-    • pattern.png         — subtle background texture
+    - logo.png             wordmark used in header
+    - mark.png             octagon mark (decorative)
+    - landing-hero-video.mp4  hero background video (muted, autoplay, loop)
+    - pattern.png          subtle background texture
 -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<!--
+  Load Google Fonts non-blocking: fetch as a stylesheet preload, then promote
+  to a real stylesheet on load. Falls back to a synchronous load for browsers
+  that don't run JS / honor the onload swap.
+-->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap"></noscript>
 
 <link rel="icon" type="image/png" href="mark.png" />
+<!-- LCP element — preload at high priority so it paints during initial parse. -->
+<link rel="preload" as="image" href="mark.png" fetchpriority="high">
 
 <style>
 /* ============================================================
@@ -210,7 +218,21 @@ header.scrolled {
   text-align: center;
   padding: 140px 24px 80px;
   overflow: hidden;
-  background: var(--bg);
+  /* Layered fallback that looks deliberate when the hero video doesn't load:
+     radial vignette + faint pattern. The video, when present, sits z-index:0
+     above this and below the veil. */
+  background:
+    radial-gradient(60% 50% at 50% 30%, rgba(242,201,76,.06), transparent 70%),
+    radial-gradient(120% 80% at 50% 0%, #0c0e16 0%, var(--bg) 55%),
+    var(--bg);
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background-image: url(pattern.png);
+  background-repeat: repeat; background-size: 380px auto;
+  opacity: .08; pointer-events: none;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 80%);
+  mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 80%);
 }
 .hero-video {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -245,13 +267,15 @@ header.scrolled {
 .hero-mark {
   width: 88px; height: 88px; margin: 0 auto 24px;
   filter: drop-shadow(0 0 24px rgba(242,201,76,.35));
+  /* Keep the entrance feel, but reach full opacity within 600ms so the mark
+     counts as LCP early. The float continues forever after. */
   animation:
-    markIn 1.1s cubic-bezier(.2,.7,.2,1) both,
-    floatY 5.5s ease-in-out 1.2s infinite;
+    markIn 700ms cubic-bezier(.2,.7,.2,1) both,
+    floatY 5.5s ease-in-out 900ms infinite;
 }
 @keyframes markIn {
-  0%   { opacity: 0; transform: scale(1.5); filter: blur(12px) drop-shadow(0 0 0 rgba(242,201,76,0)); }
-  60%  { opacity: 1; filter: blur(0) drop-shadow(0 0 24px rgba(242,201,76,.35)); }
+  0%   { opacity: 0; transform: scale(1.35); filter: blur(8px) drop-shadow(0 0 0 rgba(242,201,76,0)); }
+  50%  { opacity: 1; filter: blur(0) drop-shadow(0 0 24px rgba(242,201,76,.35)); }
   100% { transform: scale(1); }
 }
 @keyframes floatY {
@@ -891,17 +915,18 @@ footer {
      HERO
 ========================================================= -->
 <section class="hero" id="hero">
-  <video
-    class="hero-video"
-    src="landing-hero-video.mp4"
-    autoplay muted loop playsinline preload="auto"
-    aria-hidden="true">
-  </video>
+  <!--
+    The <video> is injected by JS only when the connection looks healthy
+    and the user hasn't opted into data-saver. On slow networks and on
+    mobile the hero falls back to the breathing glow + veil + mark, which
+    already feels alive. Keeps mobile Lighthouse > 90.
+  -->
+  <div class="hero-video-slot" aria-hidden="true"></div>
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="hero-veil"></div>
 
   <div class="hero-inner">
-    <img src="mark.png" alt="" class="hero-mark" aria-hidden="true">
+    <img src="mark.png" alt="" class="hero-mark" aria-hidden="true" fetchpriority="high" width="88" height="88">
     <h1>Bet Smarter.<br>Win More.</h1>
     <p class="tagline">Smarter UFC Betting Starts With Data</p>
     <div class="cta-row">
@@ -1408,10 +1433,38 @@ footer {
     counters.forEach(el => { el.textContent = formatNum(parseInt(el.dataset.count, 10) || 0); });
   }
 
+  // --- Hero video: network-aware lazy injection ---------------------
+  // The hero video is 5.5MB. We only load it when:
+  //   - user hasn't asked for reduced motion
+  //   - user hasn't enabled data saver
+  //   - effective connection isn't slow-2g/2g/3g (when known)
+  //   - viewport is desktop-ish (skip on phones to save battery + bytes)
+  // Without the video, the hero still has the breathing glow + mark + veil
+  // + pattern fallback, which already reads as "alive".
+  const heroSlot = document.querySelector('.hero-video-slot');
+  const conn = navigator.connection || navigator.webkitConnection || {};
+  const slowConn = ['slow-2g', '2g', '3g'].includes(conn.effectiveType);
+  const dataSaver = conn.saveData === true;
+  const isMobileViewport = window.matchMedia('(max-width: 880px)').matches;
+  const shouldLoadVideo = !reducedMotion && !slowConn && !dataSaver && !isMobileViewport;
+
+  let heroVideo = null;
+  if (shouldLoadVideo && heroSlot) {
+    heroVideo = document.createElement('video');
+    heroVideo.className = 'hero-video';
+    heroVideo.src = 'landing-hero-video.mp4';
+    heroVideo.autoplay = true;
+    heroVideo.muted = true;
+    heroVideo.loop = true;
+    heroVideo.playsInline = true;
+    heroVideo.preload = 'metadata';
+    heroVideo.setAttribute('aria-hidden', 'true');
+    heroSlot.replaceWith(heroVideo);
+  }
+
   // --- Hero video parallax ------------------------------------------
   // Translate the video up to -80px over the hero's scroll range.
   // Single rAF loop, GPU-only transform via CSS custom property.
-  const heroVideo = document.querySelector('.hero-video');
   const heroSection = document.querySelector('.hero');
   if (heroVideo && heroSection && !reducedMotion) {
     let ticking = false;
