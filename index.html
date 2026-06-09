@@ -1,778 +1,1234 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
+<script>document.documentElement.classList.replace('no-js','js');</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CombatCall — Data-Driven Betting Tool for MMA</title>
-<meta name="description" content="CombatCall is a data-driven UFC and MMA betting analytics tool that helps users make smarter fight picks." />
+<title>CombatCall — Smarter UFC Betting Starts With Data</title>
+<meta name="description" content="CombatCall is a data-driven UFC and MMA analytics tool. Fighter stats, AI predictions, and live odds across major sportsbooks so you can spot value before the market corrects." />
+<meta name="theme-color" content="#0a0d14" />
 
-<!-- ========================================================================
-     CombatCall landing page — self-contained, owned by CombatCall.
-     Rebuilt from the original Framer design. No external dependencies
-     except Google Fonts and the public fighter photos in your Supabase
-     storage bucket.
+<!-- Open Graph -->
+<meta property="og:title" content="CombatCall — Smarter UFC Betting Starts With Data" />
+<meta property="og:description" content="Data-driven UFC and MMA analytics. Fighter stats, AI predictions, and live odds across major sportsbooks." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://combatcall.com" />
 
-     EASY EDITS (search for these):
-       • [LINK:APP]      every CTA points to https://app.combatcall.com
-       • [EDIT:FIGHTERS] the fighter photo grid (add Jon Jones here)
-       • [EDIT:STEP3]    Step 3 copy (placeholder — swap in your real text)
-       • [EDIT:YEARLY]   yearly price (placeholder $75/yr)
-       • [EDIT:FAQ]      FAQ items (2 placeholders below your real one)
-======================================================================== -->
+<!--
+  CombatCall landing page — static, no build step.
+
+  How to edit copy:
+    • Each section is wrapped in <!-- SECTION: NAME --> comments. Just search.
+    • Almost all visible text is in the HTML below (no JS-rendered copy).
+    • FAQ items are <details> elements — duplicate one to add a new Q+A.
+    • Pricing cards are two .plan blocks — edit price, features, CTA text inline.
+
+  Assets in this repo:
+    • logo.png            — wordmark used in header
+    • mark.png            — octagon mark (decorative)
+    • landing-hero-video.mp4 — hero background video (muted, autoplay, loop)
+    • pattern.png         — subtle background texture
+-->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 
+<link rel="icon" type="image/png" href="mark.png" />
+
 <style>
-:root{
-  --bg:#06070c;
-  --bg-2:#080a11;
-  --panel:#0d1019;
-  --panel-2:#10141f;
-  --gold:#d8b25a;
-  --gold-bright:#f1ce78;
-  --gold-dim:#8d7236;
-  --text:#f4f5f8;
-  --muted:#979eac;
-  --muted-2:#6f7686;
-  --border:rgba(216,178,90,.16);
-  --border-soft:rgba(255,255,255,.07);
-  --font-sans:'Sora',-apple-system,BlinkMacSystemFont,sans-serif;
-  --font-serif:'Instrument Serif',Georgia,serif;
-  --maxw:1180px;
+/* ============================================================
+   TOKENS
+============================================================ */
+:root {
+  --bg:           #06070c;
+  --bg-2:         #0a0d14;
+  --panel:        #0d1019;
+  --panel-2:      #11141d;
+  --panel-3:      #161a25;
+  --brand:        #f2c94c;       /* primary yellow accent */
+  --brand-bright: #ffd966;
+  --brand-dim:    #b39239;
+  --text:         #f4f5f8;
+  --muted:        #9aa0ad;
+  --muted-2:      #6f7686;
+  --border:       rgba(242,201,76,.18);
+  --border-soft:  rgba(255,255,255,.07);
+  --font-sans:    'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif:   'Instrument Serif', Georgia, serif;
+  --maxw:         1180px;
 }
 
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:90px}
-body{
-  font-family:var(--font-sans);
-  background:var(--bg);
-  color:var(--text);
-  line-height:1.55;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+/* ============================================================
+   RESET / BASE
+============================================================ */
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:90px; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-a{color:inherit;text-decoration:none}
-img{display:block;max-width:100%}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { font-family: inherit; cursor: pointer; }
 
-/* ---- shared bits ---- */
-.eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:7px 15px;border-radius:999px;
-  background:rgba(255,255,255,.035);
-  border:1px solid var(--border-soft);
-  font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:#cdd2dc;font-weight:500;
-  backdrop-filter:blur(6px);
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+/* ============================================================
+   PRIMITIVES
+============================================================ */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 15px; border-radius: 999px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border-soft);
+  font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: #cdd2dc; font-weight: 500;
 }
-.eyebrow svg{width:14px;height:14px;color:var(--gold)}
-.ser{font-family:var(--font-serif);font-style:italic;font-weight:400;color:#cfd4de}
-h2.section-title{
-  font-size:clamp(34px,5vw,54px);font-weight:600;line-height:1.05;
-  letter-spacing:-.02em;margin:18px 0 0;
+.ser { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: #cfd4de; }
+
+h2.section-title {
+  font-size: clamp(34px, 5vw, 54px); font-weight: 600; line-height: 1.05;
+  letter-spacing: -.02em; margin: 16px 0 0;
 }
-.section-sub{color:var(--gold);font-size:16px;margin-top:14px;font-weight:500}
-.section-head{text-align:center;max-width:720px;margin:0 auto 56px}
+.section-sub { color: var(--brand); font-size: 16px; margin-top: 14px; font-weight: 500; }
+.section-head { text-align: center; max-width: 720px; margin: 0 auto 56px; }
 
-.btn{
-  display:inline-flex;align-items:center;gap:9px;
-  padding:14px 26px;border-radius:12px;font-weight:600;font-size:15px;
-  background:linear-gradient(180deg,#15171f,#0b0d13);
-  border:1px solid rgba(255,255,255,.1);
-  color:#fff;cursor:pointer;transition:.25s;
-  box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 10px 30px rgba(0,0,0,.4);
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 14px 26px; border-radius: 12px; font-weight: 600; font-size: 15px;
+  background: linear-gradient(180deg, #15171f, #0b0d13);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #fff; transition: .25s;
+  box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 10px 30px rgba(0,0,0,.4);
 }
-.btn:hover{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset,0 12px 36px rgba(216,178,90,.18);transform:translateY(-2px)}
-.btn svg{width:15px;height:15px}
-.btn-gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:#1a1408;border:none}
-.btn-gold:hover{box-shadow:0 12px 36px rgba(216,178,90,.4);transform:translateY(-2px)}
-.btn-gold{position:relative;overflow:hidden}
-.btn-gold::after{content:"";position:absolute;top:0;left:-150%;width:55%;height:100%;
-  background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);
-  transform:skewX(-20deg);animation:sheen 5s ease-in-out infinite;pointer-events:none}
-@keyframes sheen{0%,62%{left:-150%}82%,100%{left:165%}}
-.scroll-prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:200;
-  background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));
-  box-shadow:0 0 10px rgba(216,178,90,.6)}
+.btn:hover { border-color: var(--brand); transform: translateY(-2px); }
+.btn svg { width: 15px; height: 15px; }
 
-/* real logo + pattern background */
-.brand-logo{height:30px;width:auto;display:block}
-.pattern{position:absolute;inset:0;pointer-events:none;z-index:0;
-  background-image:url(pattern.png);background-repeat:repeat;background-position:center;background-size:440px auto}
-.pattern-hero{opacity:.10;filter:blur(.5px)}
-.pattern-soft{opacity:.13;
-  -webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent);
-  mask-image:linear-gradient(180deg,transparent,#000 22%,#000 78%,transparent)}
-.veil{position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:radial-gradient(58% 56% at 50% 40%,rgba(6,7,12,.93) 0%,rgba(6,7,12,.6) 42%,rgba(6,7,12,.15) 74%,transparent 100%)}
-
-/* =======================  NAV  ======================= */
-header{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  transition:.3s;
+.btn-brand {
+  background: linear-gradient(180deg, var(--brand-bright), var(--brand));
+  color: #1a1408;
+  border: 1px solid rgba(0,0,0,.1);
 }
-header.scrolled{background:rgba(6,7,12,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-soft)}
-.nav{display:flex;align-items:center;justify-content:space-between;height:74px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
-.brand .logo{width:32px;height:32px}
-.brand span{font-size:16px}
-.nav-links{
-  display:flex;gap:6px;align-items:center;
-  background:rgba(255,255,255,.04);border:1px solid var(--border-soft);
-  padding:6px;border-radius:14px;backdrop-filter:blur(8px);
+.btn-brand:hover {
+  box-shadow: 0 12px 36px rgba(242,201,76,.35);
+  transform: translateY(-2px);
+  border-color: rgba(0,0,0,.1);
 }
-.nav-links a{padding:8px 18px;border-radius:9px;font-size:14px;color:#c7ccd6;transition:.2s}
-.nav-links a:hover{background:rgba(255,255,255,.06);color:#fff}
-.nav-cta{display:flex;align-items:center}
-.menu-btn{display:none;background:none;border:none;color:#fff;cursor:pointer}
-.menu-btn svg{width:26px;height:26px}
 
-/* =======================  HERO  ======================= */
-.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;text-align:center;padding:120px 24px 60px;
-  background:radial-gradient(120% 80% at 50% 0%,#0c0e16 0%,var(--bg) 55%);
-  overflow:hidden;}
-.hero .glow{position:absolute;top:18%;left:50%;transform:translateX(-50%);
-  width:680px;height:680px;border-radius:50%;z-index:0;
-  background:radial-gradient(circle,rgba(216,178,90,.16) 0%,rgba(216,178,90,.04) 40%,transparent 70%);
-  filter:blur(10px);animation:breathe 6s ease-in-out infinite;}
-@keyframes breathe{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
-/* cage floor */
-.floor{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-  width:160%;height:42vh;z-index:0;pointer-events:none;
-  background-image:linear-gradient(rgba(216,178,90,.10) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(216,178,90,.10) 1px,transparent 1px);
-  background-size:54px 54px;
-  -webkit-mask-image:linear-gradient(to top,#000 0%,transparent 80%);
-  mask-image:linear-gradient(to top,#000 0%,transparent 80%);
-  transform:translateX(-50%) perspective(420px) rotateX(62deg);
-  transform-origin:bottom center;opacity:.55;}
+/* ============================================================
+   MOTION PRIMITIVES — reveal on scroll, stagger, scroll progress
+============================================================ */
 
-/* cinematic silhouette layer — pronounced zoom-pulse */
-.cine{position:absolute;inset:0;z-index:0;overflow:hidden;
-  animation:cineZoom 6.5s ease-in-out infinite;will-change:transform}
-@keyframes cineZoom{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-.cine .sil{position:absolute;fill:var(--gold)}
-.cine .pattern-hero{position:absolute;inset:0}
-.s-oct{top:50%;left:50%;width:min(760px,94vw);transform:translate(-50%,-50%);
-  opacity:.06;filter:blur(1px);fill:none;stroke:var(--gold);stroke-width:2}
-.s-belt{top:11%;left:50%;width:min(440px,62vw);transform:translateX(-50%);opacity:.05;filter:blur(2px)}
-.s-charts{bottom:7%;left:5%;width:min(360px,42vw);opacity:.06;filter:blur(1.5px)}
-.s-fighter-r{top:13%;right:3%;height:66%;opacity:.07;filter:blur(2px)}
-.s-fighter-l{top:24%;left:2%;height:50%;opacity:.045;filter:blur(3px) scaleX(-1)}
-.cine-mark{position:absolute;top:50%;left:50%;width:min(540px,80vw);
-  transform:translate(-50%,-50%);opacity:.16;
-  filter:drop-shadow(0 0 50px rgba(216,178,90,.30));
-  animation:markBreathe 6.5s ease-in-out infinite}
-@keyframes markBreathe{0%,100%{opacity:.12}50%{opacity:.24}}
-
-.hero-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
-.app-icon{width:118px;height:118px;border-radius:27px;display:grid;place-items:center;
-  background:linear-gradient(160deg,#1b1e29,#0a0c12);
-  border:1px solid rgba(216,178,90,.3);
-  box-shadow:0 0 0 1px rgba(0,0,0,.5),0 24px 60px rgba(0,0,0,.6),0 0 50px rgba(216,178,90,.22);
-  animation:logoZoom 1.5s cubic-bezier(.2,.7,.2,1) both, markFloat 5.5s ease-in-out 1.6s infinite;}
-@keyframes markFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.app-icon img{width:78px;height:78px;object-fit:contain}
-@keyframes logoZoom{0%{opacity:0;transform:scale(1.8);filter:blur(14px)}60%{opacity:1;filter:blur(0)}100%{transform:scale(1)}}
-
-.hero .pill-live{margin-top:30px;display:inline-flex;align-items:center;gap:9px;font-size:13.5px;color:#dfe3ea;
-  animation:fadeUp .8s .5s both}
-.hero .pill-live .dot{width:8px;height:8px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 10px var(--gold-bright);animation:pulse 1.8s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-.hero h1{font-size:clamp(48px,9vw,108px);font-weight:600;line-height:.98;letter-spacing:-.03em;
-  margin:18px 0 0;
-  background:linear-gradient(180deg,#fff 30%,#aab0bd);-webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:heroZoom 1.1s .45s both;}
-@keyframes heroZoom{0%{opacity:0;transform:scale(1.55);filter:blur(10px)}55%{opacity:1;filter:blur(0)}100%{transform:scale(1)}}
-.hero .tagline{color:var(--gold);font-size:clamp(15px,2.2vw,19px);margin-top:20px;font-weight:500;animation:fadeUp .8s .8s both}
-.hero .btn{margin-top:34px;animation:fadeUp .8s .95s both}
-.hero .socials{margin-top:34px;display:flex;gap:10px;animation:fadeUp .8s 1.1s both}
-.socials a{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;
-  background:rgba(255,255,255,.04);border:1px solid var(--border-soft);color:#aeb4c0;transition:.2s}
-.socials a:hover{color:var(--gold);border-color:var(--border);transform:translateY(-2px)}
-.socials svg{width:18px;height:18px}
-.chevron{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--muted-2);z-index:2;animation:bob 2s infinite}
-.chevron svg{width:26px;height:26px}
-@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-
-/* =======================  FIGHTER PROFILES  ======================= */
-.fighters{position:relative;padding:120px 24px;background:linear-gradient(180deg,var(--bg),#070910);overflow:hidden}
-.marquee{max-width:1180px;margin:50px auto 0;display:flex;flex-direction:column;gap:16px;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
-.mrow{display:flex;gap:16px;width:max-content;will-change:transform}
-.mrow.l{animation:slideL 38s linear infinite}
-.mrow.r{animation:slideR 46s linear infinite}
-.marquee:hover .mrow{animation-play-state:paused}
-@keyframes slideL{from{transform:translateX(0)}to{transform:translateX(-33.333%)}}
-@keyframes slideR{from{transform:translateX(-33.333%)}to{transform:translateX(0)}}
-.fighter-card{position:relative;width:158px;height:158px;flex:0 0 auto;border-radius:16px;overflow:hidden;
-  background:#11141d;border:1px solid var(--border-soft);transition:.3s}
-.fighter-card img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:grayscale(.15) contrast(1.05);transition:.4s}
-.fighter-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 14px 30px rgba(216,178,90,.18)}
-.fighter-card:hover img{filter:grayscale(0) contrast(1.1);transform:scale(1.06)}
-.fighter-card .name{position:absolute;left:0;right:0;bottom:0;padding:18px 8px 7px;font-size:11px;font-weight:600;
-  color:#fff;text-align:center;opacity:0;transform:translateY(6px);transition:.3s;
-  background:linear-gradient(transparent,rgba(0,0,0,.85))}
-.fighter-card:hover .name{opacity:1;transform:translateY(0)}
-.fighters .caption{text-align:center;margin-top:34px;color:var(--gold);font-size:15px;font-style:italic;font-family:var(--font-serif)}
-
-/* =======================  BENEFITS  ======================= */
-.benefits{padding:110px 24px}
-.cards-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.bcard{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--border-soft);
-  border-radius:22px;padding:38px 32px 34px;transition:.3s;position:relative;overflow:hidden}
-.bcard:hover{border-color:var(--border);transform:translateY(-5px)}
-.bcard .icon-box{height:150px;display:grid;place-items:center;margin-bottom:26px;color:var(--gold)}
-.bcard .icon-box svg{width:84px;height:84px;opacity:.9}
-.bcard h3{font-size:22px;font-weight:600;text-align:center}
-.bcard p{color:var(--gold-dim);text-align:center;margin-top:12px;font-size:14.5px;color:#a98f4f}
-
-/* =======================  FEATURES  ======================= */
-.features{position:relative;padding:120px 24px;background:#070910;overflow:hidden}
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative;z-index:2}
-.fcard{background:linear-gradient(180deg,rgba(17,21,32,.92),rgba(10,12,19,.92));border:1px solid var(--border-soft);
-  border-radius:22px;padding:30px;transition:.3s}
-.fcard:hover{border-color:var(--border);transform:translateY(-5px);box-shadow:0 18px 50px rgba(0,0,0,.5)}
-.fcard .ic{width:100%;height:96px;border-radius:14px;display:grid;place-items:center;margin-bottom:24px;
-  background:rgba(255,255,255,.02);border:1px solid var(--border-soft);color:#c9ced8}
-.fcard .ic svg{width:34px;height:34px}
-.fcard h3{font-size:20px;font-weight:600}
-.fcard p{color:#a98f4f;font-size:14px;margin-top:12px;line-height:1.6}
-
-/* =======================  PROCESS  ======================= */
-.process{padding:120px 24px}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:880px;margin:0 auto 0;
-  background:rgba(255,255,255,.025);border:1px solid var(--border-soft);border-radius:18px;padding:10px}
-.tab{padding:16px;border-radius:12px;background:transparent;border:none;color:var(--muted);
-  font-family:var(--font-sans);font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.25s;font-weight:500}
-.tab.active{background:linear-gradient(180deg,#161a25,#0d1019);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.05) inset}
-.panel-wrap{max-width:880px;margin:0 auto;border:1px solid var(--border-soft);border-top:none;
-  border-radius:0 0 22px 22px;background:linear-gradient(180deg,rgba(13,16,25,.5),transparent);padding:48px 40px 56px}
-.tabpanel{display:none;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.tabpanel.active{display:grid;animation:fadeUp .5s both}
-.phones{display:flex;gap:14px;justify-content:center}
-.phone{width:174px;min-height:372px;border-radius:30px;background:linear-gradient(160deg,#15171f,#0a0c11);
-  border:1px solid rgba(255,255,255,.1);padding:14px 12px;box-shadow:0 24px 50px rgba(0,0,0,.5);
-  display:flex;flex-direction:column}
-.phone .notch{width:46px;height:5px;border-radius:9px;background:#2a2e38;margin:2px auto 12px}
-.phone .row{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#cfd4de;margin-bottom:8px}
-.phone .ftr{border-radius:9px;padding:8px;margin-bottom:7px;font-size:9px}
-.phone .ftr.red{background:linear-gradient(180deg,#2a1414,#1a0d0d);border:1px solid #4a2020}
-.phone .ftr.blue{background:linear-gradient(180deg,#0f1626,#0b1019);border:1px solid #1d2a44}
-.phone .ftr b{color:#fff;font-size:10px}
-.phone .ftr .od{float:right;color:var(--gold-bright)}
-.phone .vs{text-align:center;font-size:9px;font-weight:700;color:#1a1408;background:var(--gold);width:28px;height:18px;
-  line-height:18px;border-radius:6px;margin:0 auto 7px}
-.phone .pillrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.phone .mini{flex:1 1 40%;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 6px;font-size:8px;color:#cfd4de;text-align:center}
-.phone .go{background:var(--gold);color:#1a1408;text-align:center;font-size:9px;font-weight:700;border-radius:8px;padding:7px}
-.phone h4{font-size:11px;color:#fff;margin-bottom:8px;line-height:1.3}
-.phone h4 i{color:var(--gold-bright);font-style:normal}
-.step-num{font-family:var(--font-serif);font-size:30px;color:var(--gold-dim)}
-.step-txt h3{font-size:26px;font-weight:600;margin:8px 0 14px}
-.step-txt p{color:var(--muted);font-size:15px;line-height:1.7}
-
-/* =======================  PRICING  ======================= */
-.pricing{padding:120px 24px;text-align:center}
-.toggle{display:inline-flex;background:rgba(255,255,255,.04);border:1px solid var(--border-soft);
-  border-radius:12px;padding:6px;margin:36px 0 44px;gap:4px}
-.toggle button{padding:11px 24px;border-radius:9px;background:transparent;border:none;color:var(--muted);
-  font-family:var(--font-sans);font-size:14px;cursor:pointer;transition:.2s;font-weight:500;display:flex;align-items:center;gap:8px}
-.toggle button.active{background:#11141d;color:#fff}
-.toggle .save{font-size:11px;background:var(--gold);color:#1a1408;padding:2px 7px;border-radius:6px;font-weight:700}
-.plan{max-width:440px;margin:0 auto;text-align:left;background:linear-gradient(180deg,var(--panel-2),var(--panel));
-  border:1px solid var(--border);border-radius:24px;padding:38px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
-.plan-top{display:flex;align-items:center;gap:12px;margin-bottom:24px}
-.plan-top b{font-size:18px}
-.plan-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gold-bright);
-  background:rgba(216,178,90,.1);border:1px solid var(--border);padding:5px 11px;border-radius:999px}
-.price{font-size:60px;font-weight:700;letter-spacing:-.03em}
-.price span{font-size:16px;color:var(--muted);font-weight:400}
-.plan .btn{width:100%;justify-content:center;margin:26px 0}
-.plan ul{list-style:none;border-top:1px solid var(--border-soft);padding-top:24px;display:grid;gap:15px}
-.plan li{display:flex;align-items:center;gap:11px;color:#cdd2dc;font-size:15px}
-.plan li svg{width:17px;height:17px;color:var(--gold)}
-
-/* =======================  FAQ  ======================= */
-.faq{padding:40px 24px 130px;max-width:760px;margin:0 auto}
-.faq .section-head{margin-bottom:40px}
-.faq-item{border:1px solid var(--border-soft);border-radius:16px;margin-bottom:12px;overflow:hidden;background:rgba(13,16,25,.5)}
-.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;
-  padding:22px 24px;background:none;border:none;color:#fff;font-family:var(--font-sans);font-size:17px;
-  font-weight:500;cursor:pointer;text-align:left}
-.faq-q svg{width:20px;height:20px;color:var(--gold);transition:.3s;flex-shrink:0}
-.faq-item.open .faq-q svg{transform:rotate(45deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--muted);font-size:15px}
-.faq-a div{padding:0 24px 22px}
-
-/* =======================  FOOTER  ======================= */
-footer{border-top:1px solid var(--border-soft);background:#05060a;padding:60px 24px 40px}
-.foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:32px}
-.foot .brand{margin-bottom:14px}
-.foot-col h5{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-2);margin-bottom:16px}
-.foot-col a{display:block;color:#b9bec9;font-size:14px;margin-bottom:10px;transition:.2s}
-.foot-col a:hover{color:var(--gold)}
-.foot-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
-  margin-top:48px;padding-top:26px;border-top:1px solid var(--border-soft);color:var(--muted-2);font-size:13px}
-.foot-bottom .socials a{width:36px;height:36px}
-
-/* reveal on scroll */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
-.reveal.in{opacity:1;transform:none}
-
-/* =======================  RESPONSIVE  ======================= */
-@media(max-width:860px){
-  .nav-links{display:none}
-  .menu-btn{display:block}
-  .nav-links.open{display:flex;position:absolute;top:74px;left:24px;right:24px;flex-direction:column;
-    padding:14px;border-radius:16px;background:rgba(8,10,17,.97);backdrop-filter:blur(14px)}
-  .nav-links.open a{width:100%}
-  .cards-3,.feat-grid{grid-template-columns:1fr}
-  .fighter-grid{grid-template-columns:repeat(3,1fr)}
-  .tabpanel.active{grid-template-columns:1fr;text-align:center}
-  .phones{order:2}
-  .tab{font-size:11px;padding:13px 6px}
-  .foot{flex-direction:column}
+/* Scroll progress bar (top of viewport) */
+.scroll-prog {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 2px; z-index: 200; pointer-events: none;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, var(--brand-dim), var(--brand-bright));
+  box-shadow: 0 0 12px rgba(242,201,76,.5);
+  transition: transform .12s linear;
 }
-@media(max-width:480px){
-  .fighter-grid{grid-template-columns:repeat(2,1fr);padding:18px;gap:12px}
-  .nav-cta .btn{padding:11px 16px;font-size:13px}
+
+/* Base reveal: invisible + slight offset, settles on .in.
+   Children of a [data-stagger] container animate sequentially via --i. */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  transition:
+    opacity .8s cubic-bezier(.2,.7,.2,1),
+    transform .9s cubic-bezier(.2,.7,.2,1);
+  transition-delay: calc(var(--i, 0) * 90ms);
+  will-change: opacity, transform;
+}
+.reveal.in { opacity: 1; transform: none; }
+.reveal.in.settled { will-change: auto; }
+
+/* Directional variants */
+.reveal.from-left  { transform: translate3d(-32px, 0, 0); }
+.reveal.from-right { transform: translate3d(32px, 0, 0); }
+.reveal.scale-in   { transform: scale(.94); }
+.reveal.in.from-left,
+.reveal.in.from-right,
+.reveal.in.scale-in { transform: none; }
+
+/* No-JS / no-IntersectionObserver fallback — never trap content invisible */
+.no-js .reveal { opacity: 1; transform: none; transition: none; }
+
+/* ============================================================
+   HEADER / NAV
+============================================================ */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  transition: background .3s ease, border-color .3s ease;
+}
+header.scrolled {
+  background: rgba(6,7,12,.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.nav {
+  display: flex; align-items: center; justify-content: space-between; height: 74px;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo { height: 30px; width: auto; }
+
+.nav-links {
+  display: flex; gap: 6px; align-items: center;
+  background: rgba(255,255,255,.04); border: 1px solid var(--border-soft);
+  padding: 6px; border-radius: 14px;
+  backdrop-filter: blur(8px);
+}
+.nav-links a {
+  padding: 8px 18px; border-radius: 9px; font-size: 14px; color: #c7ccd6;
+  transition: background .2s, color .2s;
+}
+.nav-links a:hover { background: rgba(255,255,255,.06); color: #fff; }
+
+.nav-cta { display: flex; align-items: center; gap: 14px; }
+.signin-link {
+  font-size: 14px; color: #c7ccd6; transition: color .2s;
+}
+.signin-link:hover { color: var(--brand); }
+
+.menu-btn { display: none; background: none; border: none; color: #fff; }
+.menu-btn svg { width: 26px; height: 26px; }
+
+/* ============================================================
+   HERO
+============================================================ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 140px 24px 80px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.hero-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+  opacity: .55;
+  /* JS sets --py for subtle scroll parallax. GPU-only transform. */
+  transform: translate3d(0, var(--py, 0), 0) scale(1.08);
+  will-change: transform;
+}
+.hero-veil {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(70% 60% at 50% 40%, rgba(6,7,12,.55) 0%, rgba(6,7,12,.78) 60%, rgba(6,7,12,.95) 100%),
+    linear-gradient(180deg, rgba(6,7,12,.5) 0%, transparent 35%, transparent 65%, rgba(6,7,12,.95) 100%);
+}
+/* Soft gold breathing glow behind hero copy */
+.hero-glow {
+  position: absolute; top: 22%; left: 50%; transform: translateX(-50%);
+  width: 640px; height: 640px; border-radius: 50%;
+  z-index: 1; pointer-events: none;
+  background: radial-gradient(circle, rgba(242,201,76,.16) 0%, rgba(242,201,76,.04) 40%, transparent 70%);
+  filter: blur(8px);
+  animation: heroGlow 7s ease-in-out infinite;
+}
+@keyframes heroGlow {
+  0%, 100% { opacity: .7; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 1;  transform: translateX(-50%) scale(1.08); }
+}
+
+.hero-inner { position: relative; z-index: 2; max-width: 880px; }
+
+.hero-mark {
+  width: 88px; height: 88px; margin: 0 auto 24px;
+  filter: drop-shadow(0 0 24px rgba(242,201,76,.35));
+  animation:
+    markIn 1.1s cubic-bezier(.2,.7,.2,1) both,
+    floatY 5.5s ease-in-out 1.2s infinite;
+}
+@keyframes markIn {
+  0%   { opacity: 0; transform: scale(1.5); filter: blur(12px) drop-shadow(0 0 0 rgba(242,201,76,0)); }
+  60%  { opacity: 1; filter: blur(0) drop-shadow(0 0 24px rgba(242,201,76,.35)); }
+  100% { transform: scale(1); }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.hero h1 {
+  font-size: clamp(48px, 9vw, 104px);
+  font-weight: 600; line-height: 1; letter-spacing: -.03em;
+  background: linear-gradient(180deg, #ffffff 30%, #aab0bd);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: heroLineIn 1s cubic-bezier(.2,.7,.2,1) .35s both;
+}
+.hero .tagline {
+  color: var(--brand);
+  font-size: clamp(15px, 2.2vw, 19px);
+  margin-top: 22px; font-weight: 500;
+  letter-spacing: .01em;
+  animation: heroLineIn .9s cubic-bezier(.2,.7,.2,1) .65s both;
+}
+.hero .cta-row {
+  margin-top: 36px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+  animation: heroLineIn .9s cubic-bezier(.2,.7,.2,1) .9s both;
+}
+@keyframes heroLineIn {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Sheen sweep across the brand button — quietly draws the eye every few seconds */
+.btn-brand { position: relative; overflow: hidden; }
+.btn-brand::after {
+  content: ""; position: absolute; top: 0; left: -150%;
+  width: 55%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: skewX(-20deg);
+  animation: sheen 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sheen {
+  0%, 65%  { left: -150%; }
+  85%, 100%{ left: 165%; }
+}
+
+.chevron {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  color: var(--muted-2); z-index: 2;
+  animation: bob 2.2s infinite ease-in-out;
+}
+.chevron svg { width: 26px; height: 26px; }
+@keyframes bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ============================================================
+   FOUNDER QUOTE
+============================================================ */
+.founder {
+  padding: 120px 24px;
+  background: linear-gradient(180deg, var(--bg), var(--bg-2));
+  text-align: center;
+}
+.founder .label {
+  letter-spacing: .22em; text-transform: uppercase;
+  font-size: 12px; color: var(--brand); font-weight: 500;
+}
+.founder blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(26px, 4.2vw, 42px);
+  line-height: 1.3;
+  max-width: 880px;
+  margin: 28px auto 24px;
+  color: #e7eaf0;
+}
+.founder cite {
+  font-style: normal;
+  font-size: 14px;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+.founder cite b { color: #fff; font-weight: 600; }
+
+/* ============================================================
+   FIGHTER PROFILES (visual section, no fighter images yet)
+============================================================ */
+.fighters {
+  position: relative;
+  padding: 120px 24px;
+  background: var(--bg-2);
+  text-align: center;
+  overflow: hidden;
+}
+.fighters .section-title { max-width: 880px; margin-left: auto; margin-right: auto; }
+.fighters p.lede {
+  margin: 22px auto 0;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 17px;
+}
+.fighter-visual {
+  margin: 56px auto 0;
+  max-width: 980px;
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  background:
+    radial-gradient(70% 80% at 50% 0%, rgba(242,201,76,.08), transparent 60%),
+    linear-gradient(180deg, var(--panel-2), var(--panel));
+  padding: 56px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.fighter-visual::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: url(pattern.png);
+  background-repeat: repeat;
+  background-size: 320px auto;
+  opacity: .06;
+  pointer-events: none;
+}
+.fighter-visual .icons {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  position: relative; z-index: 1;
+}
+.fighter-stat {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: left;
+}
+.fighter-stat .k {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted-2); font-weight: 500;
+}
+.fighter-stat .v {
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  color: var(--brand);
+}
+.fighter-visual .caption {
+  margin-top: 36px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--brand);
+  font-size: 17px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   BENEFITS
+============================================================ */
+.benefits { padding: 120px 24px; }
+.cards-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.bcard {
+  position: relative; overflow: hidden;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  padding: 36px 30px;
+  transition:
+    border-color .35s ease,
+    transform .35s cubic-bezier(.2,.7,.2,1),
+    box-shadow .35s ease;
+}
+.bcard::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit;
+  background: radial-gradient(380px 260px at 50% 0%, rgba(242,201,76,.12), transparent 60%);
+  opacity: 0; transition: opacity .35s ease; pointer-events: none;
+}
+.bcard:hover {
+  border-color: var(--border);
+  transform: translateY(-6px);
+  box-shadow: 0 22px 60px rgba(0,0,0,.5);
+}
+.bcard:hover::before { opacity: 1; }
+.bcard:hover .icon-box {
+  background: rgba(242,201,76,.14);
+  color: var(--brand-bright);
+  transform: scale(1.06);
+}
+.bcard .icon-box {
+  width: 64px; height: 64px;
+  display: grid; place-items: center;
+  border-radius: 14px;
+  background: rgba(242,201,76,.08);
+  border: 1px solid var(--border);
+  color: var(--brand);
+  margin-bottom: 22px;
+  transition: background .3s, color .3s, transform .3s;
+}
+.bcard .icon-box svg { width: 32px; height: 32px; }
+.bcard h3, .bcard p { position: relative; z-index: 1; }
+.bcard h3 { font-size: 21px; font-weight: 600; }
+.bcard p { color: var(--muted); margin-top: 10px; font-size: 14.5px; line-height: 1.6; }
+
+/* ============================================================
+   FEATURES
+============================================================ */
+.features {
+  position: relative;
+  padding: 120px 24px;
+  background: var(--bg-2);
+  overflow: hidden;
+}
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.fcard {
+  background: linear-gradient(180deg, rgba(17,21,32,.92), rgba(10,12,19,.92));
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  padding: 30px;
+  transition: border-color .3s, transform .3s, box-shadow .3s;
+}
+.fcard:hover {
+  border-color: var(--border);
+  transform: translateY(-4px);
+  box-shadow: 0 18px 50px rgba(0,0,0,.5);
+}
+.fcard .ic {
+  width: 56px; height: 56px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  margin-bottom: 22px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border-soft);
+  color: var(--brand);
+}
+.fcard .ic svg { width: 26px; height: 26px; }
+.fcard h3 { font-size: 19px; font-weight: 600; }
+.fcard p { color: var(--muted); font-size: 14px; margin-top: 10px; line-height: 1.65; }
+
+/* ============================================================
+   PROCESS
+============================================================ */
+.process { padding: 120px 24px; }
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.step {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--border-soft);
+  border-radius: 22px;
+  padding: 36px 32px;
+  position: relative;
+}
+.step .num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brand);
+  font-weight: 500;
+}
+.step h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.step p {
+  color: var(--muted);
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.65;
+}
+.step-divider {
+  font-family: var(--font-serif);
+  font-size: 42px;
+  color: var(--brand-dim);
+  display: none;  /* visible only on wider layouts */
+  align-items: center; justify-content: center;
+}
+
+/* ============================================================
+   PRICING
+============================================================ */
+.pricing {
+  padding: 120px 24px;
+  background: var(--bg-2);
+  text-align: center;
+}
+.plans {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 920px;
+  margin: 0 auto;
+  text-align: left;
+}
+.plan {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  padding: 38px 32px;
+  position: relative;
+  display: flex; flex-direction: column;
+  transition: border-color .3s, transform .3s;
+}
+.plan:hover { border-color: var(--border); transform: translateY(-4px); }
+.plan.featured {
+  border-color: var(--border);
+  box-shadow: 0 30px 80px rgba(0,0,0,.5), 0 0 0 1px rgba(242,201,76,.1) inset;
+}
+.plan .badge {
+  position: absolute; top: -14px; left: 24px;
+  background: linear-gradient(180deg, var(--brand-bright), var(--brand));
+  color: #1a1408;
+  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(242,201,76,.3);
+}
+.plan-name {
+  font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); font-weight: 500;
+}
+.plan-price {
+  margin-top: 14px;
+  font-size: 56px; font-weight: 700; letter-spacing: -.03em; line-height: 1;
+}
+.plan-price span {
+  font-size: 16px; color: var(--muted); font-weight: 400;
+  letter-spacing: 0;
+}
+.plan-sub {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.plan .btn { width: 100%; margin: 26px 0 24px; }
+.plan ul {
+  list-style: none;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 22px;
+  display: grid; gap: 13px;
+}
+.plan li {
+  display: flex; align-items: flex-start; gap: 11px;
+  color: #cdd2dc; font-size: 14.5px; line-height: 1.45;
+}
+.plan li svg { width: 17px; height: 17px; color: var(--brand); flex: 0 0 17px; margin-top: 2px; }
+
+.pricing .free-note {
+  margin-top: 36px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.pricing .free-note a {
+  color: var(--brand);
+  border-bottom: 1px solid var(--border);
+}
+.pricing .free-note a:hover { color: var(--brand-bright); }
+
+/* ============================================================
+   FAQ
+============================================================ */
+.faq {
+  padding: 110px 24px 130px;
+  max-width: 820px;
+  margin: 0 auto;
+}
+.faq .section-head { margin-bottom: 40px; }
+.faq-item {
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  background: rgba(13,16,25,.55);
+}
+.faq-item summary {
+  list-style: none;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px;
+  font-size: 17px; font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "";
+  width: 14px; height: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2c94c' stroke-width='2'><path d='M12 5v14M5 12h14'/></svg>");
+  background-size: contain; background-repeat: no-repeat;
+  transition: transform .3s ease;
+  flex-shrink: 0;
+}
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item .faq-a {
+  padding: 0 24px 24px;
+  color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.65;
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer {
+  border-top: 1px solid var(--border-soft);
+  background: #05060a;
+  padding: 60px 24px 40px;
+}
+.foot {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.foot-top {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 24px;
+}
+.foot-links {
+  display: flex; gap: 28px; flex-wrap: wrap;
+}
+.foot-links a {
+  color: #cdd2dc;
+  font-size: 14px;
+  transition: color .2s;
+}
+.foot-links a:hover { color: var(--brand); }
+.foot-meta {
+  padding-top: 24px;
+  border-top: 1px solid var(--border-soft);
+  display: flex; flex-direction: column; gap: 12px;
+  color: var(--muted-2);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.foot-meta .disclaimer { font-style: italic; }
+.foot-meta .copyright { font-size: 11.5px; }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 880px) {
+  .nav-links { display: none; }
+  .menu-btn { display: block; }
+  .nav-links.open {
+    display: flex;
+    position: absolute; top: 74px; left: 24px; right: 24px;
+    flex-direction: column;
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(8,10,17,.97);
+    backdrop-filter: blur(14px);
+  }
+  .nav-links.open a { width: 100%; }
+  .nav-cta .signin-link { display: none; }
+
+  .cards-3,
+  .feat-grid,
+  .steps,
+  .plans {
+    grid-template-columns: 1fr;
+  }
+  .fighter-visual .icons { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .hero { padding-top: 120px; }
+  .nav-cta .btn { padding: 11px 16px; font-size: 13px; }
+  .founder blockquote { font-size: 22px; }
+  .plan { padding: 32px 26px; }
+  .fighter-visual { padding: 36px 22px; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
 }
 </style>
 </head>
 <body>
-<div class="scroll-prog" id="scrollProg"></div>
 
-<!-- =======================  HEADER  ======================= -->
+<div class="scroll-prog" id="scrollProg" aria-hidden="true"></div>
+
+<!-- =========================================================
+     HEADER / NAV
+========================================================= -->
 <header id="top">
   <div class="wrap nav">
-    <a class="brand" href="#top">
+    <a class="brand" href="#top" aria-label="CombatCall home">
       <img src="logo.png" alt="CombatCall" class="brand-logo">
     </a>
+
     <nav class="nav-links" id="navlinks">
       <a href="#features">Services</a>
       <a href="#process">Process</a>
       <a href="#pricing">Pricing</a>
+      <a href="https://app.combatcall.com">Sign Up Now</a>
     </nav>
+
     <div class="nav-cta">
-      <!-- [LINK:APP] -->
-      <a class="btn btn-gold" href="https://app.combatcall.com">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z" fill="currentColor" stroke="none"/></svg>
+      <a class="signin-link" href="https://app.combatcall.com/login">Sign in</a>
+      <a class="btn btn-brand" href="https://app.combatcall.com">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
         Sign Up Now
       </a>
-      <button class="menu-btn" id="menuBtn" aria-label="Menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
     </div>
   </div>
 </header>
 
-<!-- =======================  HERO  ======================= -->
+<!-- =========================================================
+     HERO
+========================================================= -->
 <section class="hero" id="hero">
-  <div class="cine">
-    <!-- octagon cage (UFC arena) -->
-    <svg class="sil s-oct" viewBox="0 0 200 200">
-      <polygon points="60,8 140,8 192,60 192,140 140,192 60,192 8,140 8,60"/>
-      <polygon points="72,28 128,28 172,72 172,128 128,172 72,172 28,128 28,72"/>
-      <line x1="8" y1="80" x2="192" y2="80"/><line x1="8" y1="120" x2="192" y2="120"/>
-      <line x1="80" y1="8" x2="80" y2="192"/><line x1="120" y1="8" x2="120" y2="192"/>
-    </svg>
-    <!-- championship belt -->
-    <svg class="sil s-belt" viewBox="0 0 300 120">
-      <rect x="0" y="50" width="300" height="22" rx="5"/>
-      <ellipse cx="150" cy="60" rx="46" ry="40"/>
-      <circle cx="74" cy="61" r="20"/><circle cx="226" cy="61" r="20"/>
-    </svg>
-    <!-- charts -->
-    <svg class="sil s-charts" viewBox="0 0 200 120">
-      <rect x="6" y="70" width="20" height="44"/><rect x="34" y="52" width="20" height="62"/>
-      <rect x="62" y="80" width="20" height="34"/><rect x="90" y="40" width="20" height="74"/>
-      <rect x="118" y="58" width="20" height="56"/>
-      <polyline points="6,64 40,48 74,56 108,30 142,40 176,16" fill="none" stroke="var(--gold)" stroke-width="3"/>
-    </svg>
-    <!-- fighters -->
-    <svg class="sil s-fighter-r" viewBox="0 0 120 240">
-      <path d="M60 10c10 0 18 8 18 18 0 7-4 13-10 16 9 3 17 9 22 18l12 22c3 6 1 12-4 15s-12 1-15-5l-7-13 2 30 9 50c1 7-3 13-10 13-6 0-10-4-11-10l-9-52-9 52c-1 6-5 10-11 10-7 0-11-6-10-13l9-50 2-30-7 13c-3 6-10 8-15 5s-7-9-4-15l12-22c5-9 13-15 22-18-6-3-10-9-10-16 0-10 8-18 18-18z"/>
-    </svg>
-    <svg class="sil s-fighter-l" viewBox="0 0 120 240">
-      <path d="M60 10c10 0 18 8 18 18 0 7-4 13-10 16 9 3 17 9 22 18l12 22c3 6 1 12-4 15s-12 1-15-5l-7-13 2 30 9 50c1 7-3 13-10 13-6 0-10-4-11-10l-9-52-9 52c-1 6-5 10-11 10-7 0-11-6-10-13l9-50 2-30-7 13c-3 6-10 8-15 5s-7-9-4-15l12-22c5-9 13-15 22-18-6-3-10-9-10-16 0-10 8-18 18-18z"/>
-    </svg>
-    <!-- faint logo sprinkle -->
-    <div class="pattern pattern-hero"></div>
-    <!-- big gold CC octagon, breathing in front of the layer -->
-    <img class="cine-mark" src="mark.png" alt="">
-  </div>
-  <div class="glow"></div>
-  <div class="floor"></div>
-  <div class="veil"></div>
+  <video
+    class="hero-video"
+    src="landing-hero-video.mp4"
+    autoplay muted loop playsinline preload="auto"
+    aria-hidden="true">
+  </video>
+  <div class="hero-veil"></div>
 
   <div class="hero-inner">
-    <div class="app-icon">
-      <img src="mark.png" alt="CombatCall">
-    </div>
-    <div class="pill-live"><span class="dot"></span> Sign Up Today!</div>
+    <img src="mark.png" alt="" class="hero-mark" aria-hidden="true">
     <h1>Bet Smarter.<br>Win More.</h1>
     <p class="tagline">Smarter UFC Betting Starts With Data</p>
-    <!-- [LINK:APP] -->
-    <a class="btn" href="https://app.combatcall.com">
-      Sign Up Now
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
-    </a>
-    <div class="socials">
-      <a href="https://x.com/home" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.2l7.8-8.9L1.7 2h6.7l4.7 6.2L18.9 2zm-2.3 18h1.8L7.5 3.8H5.6L16.6 20z"/></svg></a>
-      <a href="https://www.instagram.com/" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-      <a href="https://www.facebook.com/" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1z"/></svg></a>
+    <div class="cta-row">
+      <a class="btn btn-brand" href="https://app.combatcall.com">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
+        Sign Up Now
+      </a>
     </div>
   </div>
-  <a href="#fighters" class="chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></a>
+
+  <a class="chevron" href="#founder" aria-label="Scroll down">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </a>
 </section>
 
-<!-- =======================  FIGHTER PROFILES  ======================= -->
+<!-- =========================================================
+     FOUNDER QUOTE
+========================================================= -->
+<section class="founder" id="founder">
+  <div class="wrap reveal">
+    <div class="label">We analyze the data</div>
+    <blockquote>
+      &ldquo;I lost a stack of money on bad picks before I learned to read fight data. Built this so everyone can have that edge.&rdquo;
+    </blockquote>
+    <cite><b>Cole Kelley</b> &middot; Founder</cite>
+  </div>
+</section>
+
+<!-- =========================================================
+     FIGHTER PROFILES
+========================================================= -->
 <section class="fighters" id="fighters">
-  <div class="pattern pattern-soft"></div>
-  <div class="wrap" style="position:relative;z-index:2">
-    <div class="section-head reveal">
-      <span class="eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/></svg> Fighter Profiles</span>
+  <div class="wrap reveal">
+    <div class="section-head">
+      <div class="section-sub">Fighter Profiles</div>
       <h2 class="section-title">Complete Fighter Profiles</h2>
-      <p class="section-sub">Interact with any fighter in MMA history and view their stats. All in one place!</p>
+      <p class="lede">Interact with any fighter in MMA history and view their stats. All in one place.</p>
     </div>
-    <div class="marquee reveal" id="fighterRows"></div>
-    <p class="caption reveal">"Every stat, from every fighter — all in one place"</p>
+
+    <div class="fighter-visual">
+      <div class="icons">
+        <div class="fighter-stat">
+          <div class="k">Strikes / min</div>
+          <div class="v">4.82</div>
+        </div>
+        <div class="fighter-stat">
+          <div class="k">Takedown acc</div>
+          <div class="v">63%</div>
+        </div>
+        <div class="fighter-stat">
+          <div class="k">Sub attempts</div>
+          <div class="v">2.4</div>
+        </div>
+        <div class="fighter-stat">
+          <div class="k">Defense</div>
+          <div class="v">71%</div>
+        </div>
+      </div>
+      <div class="caption">&ldquo;Our predictions have access to every stat from every fighter.&rdquo;</div>
+    </div>
   </div>
 </section>
 
-<!-- =======================  BENEFITS  ======================= -->
+<!-- =========================================================
+     BENEFITS
+========================================================= -->
 <section class="benefits" id="benefits">
   <div class="wrap">
     <div class="section-head reveal">
-      <span class="eyebrow"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-6.2 3.6 1.6-6.7L2.2 8.9l6.9-.6L12 2z"/></svg> Benefits</span>
-      <h2 class="section-title">Why Choose <span class="ser">Us?</span></h2>
-      <p class="section-sub">Never Make the Wrong Bet Again</p>
+      <div class="section-sub">Benefits</div>
+      <h2 class="section-title">Never Make the Wrong Bet Again</h2>
     </div>
-    <div class="cards-3">
-      <div class="bcard reveal">
-        <div class="icon-box"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3"><path d="M15 65a35 35 0 0 1 70 0" /><line x1="50" y1="65" x2="30" y2="45"/><circle cx="50" cy="65" r="4" fill="currentColor"/></svg></div>
+
+    <div class="cards-3" data-stagger>
+      <div class="bcard">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12h4l3-9 4 18 3-9h4"/>
+          </svg>
+        </div>
         <h3>Real-Time Data</h3>
-        <p>Access accurate, real-time data to drive smarter decisions</p>
+        <p>Access accurate, real-time data to drive smarter decisions.</p>
       </div>
-      <div class="bcard reveal">
-        <div class="icon-box"><svg viewBox="0 0 100 100" fill="currentColor"><rect x="18" y="48" width="14" height="34" rx="3"/><rect x="40" y="30" width="14" height="52" rx="3"/><rect x="62" y="40" width="14" height="42" rx="3"/></svg></div>
+
+      <div class="bcard">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 20h18"/>
+            <rect x="5" y="12" width="3" height="6"/>
+            <rect x="10.5" y="8" width="3" height="10"/>
+            <rect x="16" y="4" width="3" height="14"/>
+          </svg>
+        </div>
         <h3>Measurable Impact</h3>
-        <p>Track performance, uncover insights, and achieve higher win rates</p>
+        <p>Track performance, uncover insights, and achieve higher win rates.</p>
       </div>
-      <div class="bcard reveal">
-        <div class="icon-box"><svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3"><circle cx="50" cy="50" r="9" fill="currentColor"/><circle cx="22" cy="28" r="6"/><circle cx="80" cy="30" r="6"/><circle cx="78" cy="72" r="6"/><circle cx="24" cy="74" r="6"/><line x1="50" y1="50" x2="22" y2="28"/><line x1="50" y1="50" x2="80" y2="30"/><line x1="50" y1="50" x2="78" y2="72"/><line x1="50" y1="50" x2="24" y2="74"/></svg></div>
-        <h3>Seamless Betting</h3>
-        <p>We connect betting apps so you can see what bets are active</p>
+
+      <div class="bcard">
+        <div class="icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 17l6-6 4 4 8-8"/>
+            <path d="M14 7h7v7"/>
+          </svg>
+        </div>
+        <h3>Real-Time Odds Aggregation</h3>
+        <p>Live line movement across major sportsbooks, so you can spot value before the market corrects.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- =======================  FEATURES  ======================= -->
+<!-- =========================================================
+     FEATURES
+========================================================= -->
 <section class="features" id="features">
-  <div class="pattern pattern-soft"></div>
-  <div class="wrap" style="position:relative;z-index:2">
+  <div class="wrap">
     <div class="section-head reveal">
-      <span class="eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v12l-8 4-8-4V6l8-4z"/></svg> Features</span>
-      <h2 class="section-title">All features in <span class="ser">one place</span></h2>
-      <p class="section-sub">Everything you need to bet smarter and win big!</p>
+      <div class="section-sub">Features</div>
+      <h2 class="section-title">All features in one place</h2>
+      <p class="lede" style="margin-top:18px;color:var(--muted);max-width:600px;margin-left:auto;margin-right:auto;">
+        Everything you need to bet smarter and win more.
+      </p>
     </div>
-    <div class="feat-grid" id="featGrid"></div>
+
+    <div class="feat-grid" data-stagger>
+      <div class="fcard">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/>
+          </svg>
+        </div>
+        <h3>Analytics</h3>
+        <p>Turn raw fight data into clear betting signals.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M3 5v6c0 1.7 4 3 9 3s9-1.3 9-3V5"/>
+            <path d="M3 11v6c0 1.7 4 3 9 3s9-1.3 9-3v-6"/>
+          </svg>
+        </div>
+        <h3>All Time Fight Stats</h3>
+        <p>Unified database of historical fight data.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>
+          </svg>
+        </div>
+        <h3>AI Predictions</h3>
+        <p>Data-driven projections trained on real fight outcomes.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 6h16M4 12h10M4 18h16"/>
+            <circle cx="18" cy="12" r="2"/>
+          </svg>
+        </div>
+        <h3>Parlay Trends</h3>
+        <p>Which parlays actually perform over time.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 18l4-4 4 4 4-8 6 6"/>
+            <path d="M3 22h18"/>
+          </svg>
+        </div>
+        <h3>Bet Line Analysis</h3>
+        <p>Real-time line movement across sportsbooks.</p>
+      </div>
+
+      <div class="fcard">
+        <div class="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"/>
+            <path d="M3 9h18M8 14h3M8 17h6"/>
+          </svg>
+        </div>
+        <h3>Prop Tools</h3>
+        <p>Advanced tools for totals, rounds, and method props.</p>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- =======================  PROCESS  ======================= -->
+<!-- =========================================================
+     PROCESS
+========================================================= -->
 <section class="process" id="process">
   <div class="wrap">
     <div class="section-head reveal">
-      <span class="eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M14 6l6 6-6 6"/></svg> Process</span>
-      <h2 class="section-title">Our Simple &amp; <span class="ser">Smart Process</span></h2>
-      <p class="section-sub">Sign Up and Start Winning More</p>
+      <div class="section-sub">Process</div>
+      <h2 class="section-title">Our Simple &amp; Smart Process</h2>
     </div>
-    <div class="tabs reveal">
-      <button class="tab active" data-tab="0">Step 1</button>
-      <button class="tab" data-tab="1">Step 2</button>
-      <button class="tab" data-tab="2">Step 3</button>
-    </div>
-    <div class="panel-wrap reveal">
-      <!-- STEP 1 -->
-      <div class="tabpanel active">
-        <div class="phones">
-          <div class="phone">
-            <div class="notch"></div>
-            <h4>Create your <i>profile.</i></h4>
-            <div class="pillrow">
-              <div class="mini">Email Sign Up</div><div class="mini">Custom Profile</div>
-              <div class="mini">Pick Sports</div><div class="mini">Get Started</div>
-            </div>
-            <div class="go">Continue</div>
-          </div>
-        </div>
-        <div class="step-txt">
-          <div class="step-num">01</div>
-          <h3>Sign Up / Create Account</h3>
-          <p>Use our easy sign up to create an account and custom profile.</p>
-        </div>
+
+    <div class="steps" data-stagger>
+      <div class="step">
+        <div class="num">Step 01</div>
+        <h3>Sign Up</h3>
+        <p>Use our easy email signup to create your account.</p>
       </div>
-      <!-- STEP 2 -->
-      <div class="tabpanel">
-        <div class="phones">
-          <div class="phone">
-            <div class="notch"></div>
-            <h4>See the stats behind every <i>matchup.</i></h4>
-            <div class="ftr red"><b>Jon "Bones" Jones</b><span class="od">-200</span><br>Red Corner · Favorite</div>
-            <div class="vs">VS</div>
-            <div class="ftr blue"><b>Stipe Miocic</b><span class="od">+240</span><br>Blue Corner · Underdog</div>
-            <div class="go" style="margin-top:7px">Continue</div>
-          </div>
-          <div class="phone">
-            <div class="notch"></div>
-            <h4>Stop guessing.<br><i>Start winning.</i></h4>
-            <div class="pillrow">
-              <div class="mini">Real-Time Stats</div><div class="mini">Odds Movement</div>
-              <div class="mini">Matchup Data</div><div class="mini">Win Rate</div>
-            </div>
-            <div class="go">Continue</div>
-          </div>
-        </div>
-        <div class="step-txt">
-          <div class="step-num">02</div>
-          <h3>Check Stats / Bet Lines</h3>
-          <p>See your immediate custom stats and recommended bets. View complete fighter profiles to get the best overview.</p>
-        </div>
+      <div class="step">
+        <div class="num">Step 02</div>
+        <h3>Browse Every Card</h3>
+        <p>See real-time analytics, odds movement, and AI predictions for every upcoming UFC fight.</p>
       </div>
-      <!-- STEP 3  [EDIT:STEP3] placeholder copy -->
-      <div class="tabpanel">
-        <div class="phones">
-          <div class="phone">
-            <div class="notch"></div>
-            <h4>Place &amp; track your <i>bets.</i></h4>
-            <div class="pillrow">
-              <div class="mini">Bet Tracking</div><div class="mini">Parlay Builder</div>
-              <div class="mini">Live Lines</div><div class="mini">Results</div>
-            </div>
-            <div class="go">Place Bet</div>
-          </div>
-        </div>
-        <div class="step-txt">
-          <div class="step-num">03</div>
-          <h3>Bet Smarter / Track Wins</h3>
-          <p>Place your bets with confidence and track every result in one place — so you can see what's working and keep winning more.</p>
-        </div>
+      <div class="step">
+        <div class="num">Step 03</div>
+        <h3>Bet Smarter, Track Results</h3>
+        <p>Make informed picks at your sportsbook of choice and watch your hit rate climb.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- =======================  PRICING  ======================= -->
+<!-- =========================================================
+     PRICING
+========================================================= -->
 <section class="pricing" id="pricing">
   <div class="wrap">
-    <div class="section-head reveal" style="margin-bottom:0">
-      <span class="eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4v6c0 5-3.5 8-9 11-5.5-3-9-6-9-11V7z"/></svg> Pricing</span>
-      <h2 class="section-title">Flexible Plans for <span class="ser">Everyone</span></h2>
-      <p class="section-sub">Huge Discount on Yearly!</p>
+    <div class="section-head reveal">
+      <div class="section-sub">Pricing</div>
+      <h2 class="section-title">Flexible Plans for Everyone</h2>
     </div>
-    <div class="toggle reveal">
-      <button class="active" data-plan="monthly">Monthly</button>
-      <button data-plan="yearly">Yearly <span class="save">Save 60%</span></button>
-    </div>
-    <div class="plan reveal">
-      <div class="plan-top">
-        <b>Pro</b>
-        <span class="plan-tag"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 2s4 4 4 9a4 4 0 0 1-8 0c0-2 1-3 1-3s3 1 3-6z"/></svg> Popular</span>
+
+    <div class="plans" data-stagger>
+      <!-- ANNUAL PLAN -->
+      <div class="plan featured">
+        <div class="badge">Best Value &middot; Save 60%</div>
+        <div class="plan-name">Annual</div>
+        <div class="plan-price">$120<span> / year</span></div>
+        <div class="plan-sub">That&rsquo;s just $10/month.</div>
+        <a class="btn btn-brand" href="https://app.combatcall.com">Start Annual</a>
+        <ul>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            All UFC fight analytics
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            AI-powered predictions
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Real-time odds tracking
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Full historical fight database
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Cancel anytime
+          </li>
+        </ul>
       </div>
-      <!-- [EDIT:YEARLY] yearly price is a placeholder -->
-      <div class="price"><span>$</span><span id="priceNum" style="font-size:60px;color:var(--text);font-weight:700">25</span><span id="pricePer">/month</span></div>
-      <!-- [LINK:APP] -->
-      <a class="btn" href="https://app.combatcall.com">Get Started
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
-      </a>
-      <ul>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> AI Predictions</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Bet Tracking</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Complete Fighter Profiles</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Increase in Bets Won</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Parlay Trends</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Prop Tools</li>
-      </ul>
+
+      <!-- MONTHLY PLAN -->
+      <div class="plan">
+        <div class="plan-name">Monthly</div>
+        <div class="plan-price">$25<span> / month</span></div>
+        <div class="plan-sub">Flexible, month to month.</div>
+        <a class="btn" href="https://app.combatcall.com">Start Monthly</a>
+        <ul>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            All UFC fight analytics
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            AI-powered predictions
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Real-time odds tracking
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Full historical fight database
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Cancel anytime
+          </li>
+        </ul>
+      </div>
     </div>
+
+    <p class="free-note">
+      Or try the dashboard <a href="https://app.combatcall.com">free</a> &mdash; see the opening prelims of every card without an account.
+    </p>
   </div>
 </section>
 
-<!-- =======================  FAQ  ======================= -->
+<!-- =========================================================
+     FAQ
+========================================================= -->
 <section class="faq" id="faq">
   <div class="section-head reveal">
-    <span class="eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7M12 17h.01"/></svg> FAQ's</span>
+    <div class="section-sub">FAQ</div>
+    <h2 class="section-title">Common Questions</h2>
   </div>
-  <!-- [EDIT:FAQ] first item is from your original site; the rest are editable placeholders -->
-  <div class="faq-item open">
-    <button class="faq-q">How To Get Our Mobile App
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-    </button>
-    <div class="faq-a"><div>Coming Soon</div></div>
-  </div>
-  <div class="faq-item">
-    <button class="faq-q">What sports does CombatCall cover?
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-    </button>
-    <div class="faq-a"><div>CombatCall is built for UFC and MMA — full fighter histories, live odds, and AI-driven betting insights across every card.</div></div>
-  </div>
-  <div class="faq-item">
-    <button class="faq-q">Can I cancel anytime?
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-    </button>
-    <div class="faq-a"><div>Yes — your Pro plan is month-to-month (or yearly) and you can cancel whenever you like.</div></div>
-  </div>
+
+  <details class="faq-item">
+    <summary>What is CombatCall?</summary>
+    <div class="faq-a">
+      A data-driven analytics tool for UFC and MMA fight cards. We aggregate fighter stats, historical performance, and live odds across major sportsbooks so you can spot value before the line moves.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Is CombatCall a sportsbook?</summary>
+    <div class="faq-a">
+      No. We don&rsquo;t accept or facilitate wagers. We provide analytics so you can make smarter picks at whichever licensed sportsbook you use.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>How accurate are your predictions?</summary>
+    <div class="faq-a">
+      Our models are trained on years of historical fight data and updated as new fights happen. No model is right every time &mdash; sports outcomes are inherently uncertain &mdash; but our edge cases consistently identify mispriced lines before the market corrects.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Can I try it before paying?</summary>
+    <div class="faq-a">
+      Yes. Sign up with just your email and get the opening prelims of every card free, with full analytics on those three fights. Subscribe to unlock the rest of the card.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>How do I cancel?</summary>
+    <div class="faq-a">
+      Sign in to your account, click &ldquo;Manage Subscription,&rdquo; and Stripe handles the rest. No phone calls, no retention pop-ups.
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary>Is this available everywhere?</summary>
+    <div class="faq-a">
+      We&rsquo;re available across the U.S. except Washington State (regulatory).
+    </div>
+  </details>
 </section>
 
-<!-- =======================  FOOTER  ======================= -->
+<!-- =========================================================
+     FOOTER
+========================================================= -->
 <footer>
-  <div class="wrap">
-    <div class="foot">
-      <div class="foot-col">
-        <a class="brand" href="#top">
-          <img src="logo.png" alt="CombatCall" class="brand-logo">
-        </a>
-        <p style="color:var(--muted-2);font-size:14px;max-width:240px">Smarter UFC betting starts with data.</p>
-      </div>
-      <div class="foot-col">
-        <h5>Product</h5>
-        <a href="#hero">Home</a>
-        <a href="#features">Services</a>
-        <a href="#pricing">Pricing</a>
-      </div>
-      <div class="foot-col">
-        <h5>Legal</h5>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-        <a href="mailto:combatcall@gmail.com">combatcall@gmail.com</a>
+  <div class="foot">
+    <div class="foot-top">
+      <a class="brand" href="#top" aria-label="CombatCall home">
+        <img src="logo.png" alt="CombatCall" class="brand-logo">
+      </a>
+      <div class="foot-links">
+        <a href="https://app.combatcall.com/terms" target="_blank" rel="noopener">Terms</a>
+        <a href="https://app.combatcall.com/privacy" target="_blank" rel="noopener">Privacy</a>
+        <a href="mailto:support@combatcall.com">Contact</a>
       </div>
     </div>
-    <div class="foot-bottom">
-      <div>© 2026 CombatCall · Made by CombatCall</div>
-      <div class="socials">
-        <a href="https://x.com/home" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.2l7.8-8.9L1.7 2h6.7l4.7 6.2L18.9 2z"/></svg></a>
-        <a href="https://www.facebook.com/" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.6.4-1 1-1z"/></svg></a>
-        <a href="https://www.instagram.com/" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
-      </div>
+
+    <div class="foot-meta">
+      <div class="address">CMK Enterprises LLC &middot; 9112 Gettysburg Drive, Huntington Beach, CA 92646</div>
+      <div class="disclaimer">18+. Informational only &mdash; not gambling advice. CombatCall does not accept or facilitate wagers. Need help? Call 1-800-GAMBLER.</div>
+      <div class="copyright">&copy; 2026 CMK Enterprises LLC. All rights reserved.</div>
     </div>
   </div>
 </footer>
 
 <script>
-/* ---------------- DATA ---------------- */
+  // --- Mobile nav toggle ---
+  const menuBtn  = document.getElementById('menuBtn');
+  const navLinks = document.getElementById('navlinks');
+  menuBtn.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  // Close mobile nav when a link is clicked
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
 
-// [EDIT:FIGHTERS] — your fighters, pulled from Supabase storage.
-// To add Jon Jones later: once his photo is in the bucket, add a line here:
-//   { name:"Jon Jones", img:"https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1ab6a313-a1d7-4e5f-b59f-e5580bf5f79c.png" },
-const BUCKET = "https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/";
-const fighters = [
-  { name:"Tom Aspinall",   img:BUCKET+"4f5c8d70-4664-4dbf-9011-60901ac00aee.png" },
-  { name:"Alex Pereira",   img:BUCKET+"68df7cf5-9cd8-4496-85d6-11ee2f8f0aec.png" },
-  { name:"Ilia Topuria",   img:BUCKET+"6cfefab6-e03f-4602-95ad-241995d20d66.png" },
-  { name:"Merab Dvalishvili", img:BUCKET+"6ae6d3c8-d5c0-45f2-91b3-0645b114a6e5.png" },
-  { name:"Islam Makhachev", img:BUCKET+"5ec6b429-0583-4847-a8d9-acac6dd8ffeb.png" },
-  { name:"Conor McGregor", img:BUCKET+"6096927c-bd2b-4e18-a12f-c879a89063ce.png" },
-  { name:"Joshua Van",     img:BUCKET+"4ceefd83-bb13-47d2-8d25-f9640f26cc04.png" },
-  { name:"Paddy Pimblett", img:BUCKET+"c2e7ae6f-e2b8-4207-98ab-bb9f75f37e7b.png" },
-  { name:"Alexandre Pantoja", img:BUCKET+"08743cea-c4c6-403f-910b-c488b0691558.png" },
-  { name:"Ian Machado Garry", img:BUCKET+"e72d4ad7-5c57-48c8-9231-fb8be063858d.png" }
-];
+  // --- Header scrolled state + scroll progress bar ---
+  const header   = document.querySelector('header');
+  const progress = document.getElementById('scrollProg');
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const p   = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    if (progress) progress.style.setProperty('--p', p.toFixed(3));
+    header.classList.toggle('scrolled', window.scrollY > 24);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  onScroll();
 
-const features = [
-  ["Analytics","Turn raw fight data into clear betting signals. Identify patterns, tendencies, and edges hidden beneath the surface.",
-    '<path d="M4 18l6-6 4 4 6-7"/><circle cx="20" cy="9" r="1.5" fill="currentColor"/>'],
-  ["All Time Fight Stats","Explore a unified database of historical fight data. Analyze trends, matchups, and long-term performance instantly.",
-    '<path d="M5 5v14h14M9 15l3-4 3 2 4-6"/>'],
-  ["AI Predictions","AI-driven projections built on real fight data — surfacing value, edges, and mispriced lines before the market moves.",
-    '<rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V4M9 13h.01M15 13h.01"/>'],
-  ["Parlay Trends","See which parlays actually perform over time. Build smarter combinations backed by historical data.",
-    '<path d="M4 20L20 4M14 4h6v6"/><circle cx="7" cy="17" r="2"/>'],
-  ["Bet Line Analysis","Monitor real-time line movement across sportsbooks. Identify volatility, sharp action, and market inefficiencies fast.",
-    '<path d="M4 16l5-5 3 3 8-9"/><path d="M4 20h16"/>'],
-  ["Prop Tools","Advanced tools for totals, rounds, and method props. Bet with precision using fighter styles and historical tendencies.",
-    '<path d="M6 4v16M6 8h10l-2 3 2 3H6"/>']
-];
+  // --- Stagger: assign --i to direct children of opt-in containers ---
+  document.querySelectorAll('[data-stagger]').forEach(container => {
+    [...container.children].forEach((child, i) => {
+      child.style.setProperty('--i', i);
+      child.classList.add('reveal');
+    });
+  });
 
-/* ---------------- RENDER ---------------- */
-const card = f =>
-  `<div class="fighter-card"><img src="${f.img}" alt="${f.name}" loading="lazy"
-     onerror="this.parentNode.style.display='none'"><div class="name">${f.name}</div></div>`;
-
-// 3 rows (4 / 3 / 3), alternating slide direction: left, right, left.
-// Each row's set is tripled so the -33.333% loop is perfectly seamless.
-const rows = [fighters.slice(0,4), fighters.slice(4,7), fighters.slice(7,10)];
-const dir  = ['l','r','l'];
-document.getElementById('fighterRows').innerHTML = rows.map((set,i)=>{
-  const cards = set.map(card).join('');
-  return `<div class="mrow ${dir[i]}">${cards}${cards}${cards}</div>`;
-}).join('');
-
-document.getElementById('featGrid').innerHTML = features.map(([t,d,ic]) =>
-  `<div class="fcard reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${ic}</svg></div>
-   <h3>${t}</h3><p>${d}</p></div>`
-).join('');
-
-/* ---------------- INTERACTIONS ---------------- */
-// header shadow + scroll-progress bar + hero pattern parallax
-const hdr = document.getElementById('top');
-const prog = document.getElementById('scrollProg');
-const heroPat = document.querySelector('.pattern-hero');
-addEventListener('scroll', () => {
-  hdr.classList.toggle('scrolled', scrollY > 20);
-  const h = document.documentElement;
-  const max = h.scrollHeight - h.clientHeight;
-  prog.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
-  if (heroPat) heroPat.style.backgroundPositionY = (scrollY * 0.25) + 'px';
-});
-
-// mobile menu
-const navlinks = document.getElementById('navlinks');
-document.getElementById('menuBtn').onclick = () => navlinks.classList.toggle('open');
-navlinks.querySelectorAll('a').forEach(a => a.onclick = () => navlinks.classList.remove('open'));
-
-// process tabs
-const tabs = document.querySelectorAll('.tab');
-const panels = document.querySelectorAll('.tabpanel');
-tabs.forEach(tab => tab.onclick = () => {
-  tabs.forEach(t => t.classList.remove('active'));
-  panels.forEach(p => p.classList.remove('active'));
-  tab.classList.add('active');
-  panels[+tab.dataset.tab].classList.add('active');
-});
-
-// pricing toggle  ([EDIT:YEARLY] change the yearly numbers here)
-const pNum = document.getElementById('priceNum'), pPer = document.getElementById('pricePer');
-document.querySelectorAll('.toggle button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('.toggle button').forEach(x => x.classList.remove('active'));
-  b.classList.add('active');
-  if (b.dataset.plan === 'yearly'){ pNum.textContent = '120'; pPer.textContent = '/year'; }
-  else { pNum.textContent = '25'; pPer.textContent = '/month'; }
-});
-
-// FAQ accordion
-document.querySelectorAll('.faq-q').forEach(q => q.onclick = () => {
-  const item = q.parentNode, a = item.querySelector('.faq-a');
-  const open = item.classList.contains('open');
-  document.querySelectorAll('.faq-item').forEach(i => { i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight = null; });
-  if (!open){ item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
-});
-// open the first FAQ by default
-const firstA = document.querySelector('.faq-item.open .faq-a');
-if (firstA) firstA.style.maxHeight = firstA.scrollHeight + 'px';
-
-// scroll reveal
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-}, { threshold: .12 });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  // --- Reveal on scroll ---
+  const reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          // mark settled to release will-change after the animation finishes
+          setTimeout(() => e.target.classList.add('settled'), 1000);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(el => io.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('in'));
+  }
 </script>
+
 </body>
 </html>
