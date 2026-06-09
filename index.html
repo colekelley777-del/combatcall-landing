@@ -363,7 +363,7 @@ header.scrolled {
 .founder cite b { color: #fff; font-weight: 600; }
 
 /* ============================================================
-   FIGHTER PROFILES (visual section, no fighter images yet)
+   FIGHTER PROFILES (photo grid)
 ============================================================ */
 .fighters {
   position: relative;
@@ -379,46 +379,70 @@ header.scrolled {
   color: var(--muted);
   font-size: 17px;
 }
-.fighter-visual {
+.fighter-grid {
   margin: 56px auto 0;
-  max-width: 980px;
-  border: 1px solid var(--border-soft);
-  border-radius: 24px;
-  background:
-    radial-gradient(70% 80% at 50% 0%, rgba(242,201,76,.08), transparent 60%),
-    linear-gradient(180deg, var(--panel-2), var(--panel));
-  padding: 56px 32px;
+  max-width: 1240px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+.fighter-card {
   position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 16px;
   overflow: hidden;
-}
-.fighter-visual::before {
-  content: ""; position: absolute; inset: 0;
-  background-image: url(pattern.png);
-  background-repeat: repeat;
-  background-size: 320px auto;
-  opacity: .06;
-  pointer-events: none;
-}
-.fighter-visual .icons {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
-  position: relative; z-index: 1;
-}
-.fighter-stat {
-  background: rgba(255,255,255,.03);
+  background: var(--panel-2);
   border: 1px solid var(--border-soft);
-  border-radius: 14px;
-  padding: 22px 18px;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.fighter-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  filter: grayscale(.55) brightness(.92);
+  transition: filter .25s ease, transform .35s ease;
+  display: block;
+}
+.fighter-card::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.78) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+.fighter-card .who {
+  position: absolute; left: 14px; right: 14px; bottom: 12px;
+  z-index: 2;
   text-align: left;
+  line-height: 1.15;
 }
-.fighter-stat .k {
-  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--muted-2); font-weight: 500;
+.fighter-card .who .name {
+  font-size: 14px; font-weight: 600; color: #fff;
+  letter-spacing: -0.01em;
 }
-.fighter-stat .v {
-  margin-top: 8px;
+.fighter-card .who .div {
+  font-size: 11px; color: var(--brand);
+  letter-spacing: .08em; text-transform: uppercase;
+  margin-top: 2px;
+}
+.fighter-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(242,201,76,.5);
+  box-shadow: 0 18px 40px -16px rgba(242,201,76,.25);
+}
+.fighter-card:hover img {
+  filter: grayscale(0) brightness(1);
+  transform: scale(1.04);
+}
+.fighters .caption {
+  margin-top: 44px;
   font-family: var(--font-serif);
-  font-size: 28px;
-  color: var(--brand);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--muted);
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .fighter-visual .caption {
   margin-top: 36px;
@@ -858,14 +882,15 @@ footer {
   .plans {
     grid-template-columns: 1fr;
   }
-  .fighter-visual .icons { grid-template-columns: repeat(2, 1fr); }
+  .fighter-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
 }
 @media (max-width: 480px) {
   .hero { padding-top: 120px; }
   .nav-cta .btn { padding: 11px 16px; font-size: 13px; }
   .founder blockquote { font-size: 22px; }
   .plan { padding: 32px 26px; }
-  .fighter-visual { padding: 36px 22px; }
+  .fighter-card .who .name { font-size: 12px; }
+  .fighter-card .who .div { font-size: 9px; }
 }
 
 /* Respect reduced motion */
@@ -998,27 +1023,57 @@ footer {
       <p class="lede">Interact with any fighter in MMA history and view their stats. All in one place.</p>
     </div>
 
-    <div class="fighter-visual">
-      <div class="icons">
-        <div class="fighter-stat">
-          <div class="k">Strikes / min</div>
-          <div class="v">4.82</div>
-        </div>
-        <div class="fighter-stat">
-          <div class="k">Takedown acc</div>
-          <div class="v">63%</div>
-        </div>
-        <div class="fighter-stat">
-          <div class="k">Sub attempts</div>
-          <div class="v">2.4</div>
-        </div>
-        <div class="fighter-stat">
-          <div class="k">Defense</div>
-          <div class="v">71%</div>
-        </div>
-      </div>
-      <div class="caption">&ldquo;Our predictions have access to every stat from every fighter.&rdquo;</div>
+    <div class="fighter-grid">
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Ilia Topuria">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6cfefab6-e03f-4602-95ad-241995d20d66.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Ilia Topuria</div><div class="div">Lightweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Alex Pereira">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/68df7cf5-9cd8-4496-85d6-11ee2f8f0aec.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Alex Pereira</div><div class="div">Heavyweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Conor McGregor">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6096927c-bd2b-4e18-a12f-c879a89063ce.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Conor McGregor</div><div class="div">Welterweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Islam Makhachev">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/5ec6b429-0583-4847-a8d9-acac6dd8ffeb.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Islam Makhachev</div><div class="div">Welterweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Tom Aspinall">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/4f5c8d70-4664-4dbf-9011-60901ac00aee.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Tom Aspinall</div><div class="div">Heavyweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Israel Adesanya">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/c428be62-b946-42a3-b2fa-d0338bbf0f94.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Israel Adesanya</div><div class="div">Middleweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Justin Gaethje">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1be2047a-c19a-48bc-bc57-03d3296473cb.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Justin Gaethje</div><div class="div">Lightweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Max Holloway">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/af134f57-00e2-425b-9e16-607e27d19e28.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Max Holloway</div><div class="div">Welterweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Dricus Du Plessis">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/fa1c4e6c-8b00-4840-9724-4b42475fa837.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Dricus Du Plessis</div><div class="div">Middleweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Belal Muhammad">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/434817d9-439a-4da3-8600-0365b44bcafb.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Belal Muhammad</div><div class="div">Welterweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Zhang Weili">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/e61b109d-735b-4a1a-87b8-413b772436e5.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Zhang Weili</div><div class="div">Strawweight</div></div>
+      </a>
+      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Valentina Shevchenko">
+        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1daf46db-7f56-46c3-bcef-f7510cc70d36.png" alt="" loading="lazy" decoding="async">
+        <div class="who"><div class="name">Valentina Shevchenko</div><div class="div">Flyweight</div></div>
+      </a>
     </div>
+    <div class="caption">&ldquo;Every fighter. Every fight. Every stat.&rdquo;</div>
   </div>
 </section>
 
