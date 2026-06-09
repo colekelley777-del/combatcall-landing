@@ -237,16 +237,18 @@ header.scrolled {
 .hero-video {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; z-index: 0;
-  opacity: .55;
+  opacity: .88;
   /* JS sets --py for subtle scroll parallax. GPU-only transform. */
   transform: translate3d(0, var(--py, 0), 0) scale(1.08);
   will-change: transform;
 }
 .hero-veil {
+  /* Lighter darken: just enough contrast to keep the headline legible,
+     not a near-blackout. Tuned with Cole on 2026-06-09. */
   position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    radial-gradient(70% 60% at 50% 40%, rgba(6,7,12,.55) 0%, rgba(6,7,12,.78) 60%, rgba(6,7,12,.95) 100%),
-    linear-gradient(180deg, rgba(6,7,12,.5) 0%, transparent 35%, transparent 65%, rgba(6,7,12,.95) 100%);
+    radial-gradient(80% 70% at 50% 45%, rgba(6,7,12,.18) 0%, rgba(6,7,12,.36) 60%, rgba(6,7,12,.65) 100%),
+    linear-gradient(180deg, rgba(6,7,12,.22) 0%, transparent 35%, transparent 65%, rgba(6,7,12,.85) 100%);
 }
 /* Soft gold breathing glow behind hero copy */
 .hero-glow {
@@ -379,15 +381,40 @@ header.scrolled {
   color: var(--muted);
   font-size: 17px;
 }
-.fighter-grid {
+/* Three horizontal marquee rows, alternating direction.
+   Each row contains the same set of cards rendered twice so the loop
+   wraps seamlessly when the track translates -50% across one cycle. */
+.fighter-marquee {
   margin: 56px auto 0;
-  max-width: 1240px;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  /* Edge fade so cards appear/disappear softly instead of clipping hard. */
+  -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+          mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+.fighter-row {
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.fighter-row:last-child { margin-bottom: 0; }
+.fighter-track {
+  display: flex;
   gap: 18px;
+  flex-shrink: 0;
+  animation: marqueeLeft 60s linear infinite;
+  will-change: transform;
+}
+.fighter-row.right .fighter-track { animation-name: marqueeRight; }
+.fighter-row:hover .fighter-track { animation-play-state: paused; }
+@keyframes marqueeLeft  { from { transform: translateX(0);    } to { transform: translateX(-50%); } }
+@keyframes marqueeRight { from { transform: translateX(-50%); } to { transform: translateX(0);    } }
+@media (prefers-reduced-motion: reduce) {
+  .fighter-track { animation: none !important; transform: none !important; }
+  .fighter-row { overflow-x: auto; }
 }
 .fighter-card {
   position: relative;
+  flex: 0 0 240px;
+  width: 240px;
   aspect-ratio: 3 / 4;
   border-radius: 16px;
   overflow: hidden;
@@ -882,7 +909,9 @@ footer {
   .plans {
     grid-template-columns: 1fr;
   }
-  .fighter-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .fighter-card { flex: 0 0 170px; width: 170px; }
+  .fighter-row { margin-bottom: 14px; }
+  .fighter-track { gap: 14px; }
 }
 @media (max-width: 480px) {
   .hero { padding-top: 120px; }
@@ -1023,55 +1052,61 @@ footer {
       <p class="lede">Interact with any fighter in MMA history and view their stats. All in one place.</p>
     </div>
 
-    <div class="fighter-grid">
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Ilia Topuria">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6cfefab6-e03f-4602-95ad-241995d20d66.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Ilia Topuria</div><div class="div">Lightweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Alex Pereira">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/68df7cf5-9cd8-4496-85d6-11ee2f8f0aec.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Alex Pereira</div><div class="div">Heavyweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Conor McGregor">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6096927c-bd2b-4e18-a12f-c879a89063ce.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Conor McGregor</div><div class="div">Welterweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Islam Makhachev">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/5ec6b429-0583-4847-a8d9-acac6dd8ffeb.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Islam Makhachev</div><div class="div">Welterweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Tom Aspinall">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/4f5c8d70-4664-4dbf-9011-60901ac00aee.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Tom Aspinall</div><div class="div">Heavyweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Israel Adesanya">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/c428be62-b946-42a3-b2fa-d0338bbf0f94.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Israel Adesanya</div><div class="div">Middleweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Justin Gaethje">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1be2047a-c19a-48bc-bc57-03d3296473cb.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Justin Gaethje</div><div class="div">Lightweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Max Holloway">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/af134f57-00e2-425b-9e16-607e27d19e28.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Max Holloway</div><div class="div">Welterweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Dricus Du Plessis">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/fa1c4e6c-8b00-4840-9724-4b42475fa837.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Dricus Du Plessis</div><div class="div">Middleweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Belal Muhammad">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/434817d9-439a-4da3-8600-0365b44bcafb.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Belal Muhammad</div><div class="div">Welterweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Zhang Weili">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/e61b109d-735b-4a1a-87b8-413b772436e5.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Zhang Weili</div><div class="div">Strawweight</div></div>
-      </a>
-      <a class="fighter-card" href="https://app.combatcall.com" aria-label="Valentina Shevchenko">
-        <img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1daf46db-7f56-46c3-bcef-f7510cc70d36.png" alt="" loading="lazy" decoding="async">
-        <div class="who"><div class="name">Valentina Shevchenko</div><div class="div">Flyweight</div></div>
-      </a>
+    <div class="fighter-marquee">
+      <!-- ROW 1 — scrolls LEFT (default direction) -->
+      <div class="fighter-row">
+        <div class="fighter-track">
+          <!-- 6 unique fighters, then duplicated for the seamless loop -->
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Ilia Topuria"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6cfefab6-e03f-4602-95ad-241995d20d66.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Ilia Topuria</div><div class="div">Lightweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Alex Pereira"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/68df7cf5-9cd8-4496-85d6-11ee2f8f0aec.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Alex Pereira</div><div class="div">Heavyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Conor McGregor"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6096927c-bd2b-4e18-a12f-c879a89063ce.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Conor McGregor</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Khamzat Chimaev"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/0e01bfdb-3fd9-4218-b611-848586300d9d.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Khamzat Chimaev</div><div class="div">Middleweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Israel Adesanya"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/c428be62-b946-42a3-b2fa-d0338bbf0f94.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Israel Adesanya</div><div class="div">Middleweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Sean O'Malley"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/a86b848b-6275-4652-b7ce-dd9b3967bc72.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Sean O'Malley</div><div class="div">Bantamweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Ilia Topuria" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6cfefab6-e03f-4602-95ad-241995d20d66.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Ilia Topuria</div><div class="div">Lightweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Alex Pereira" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/68df7cf5-9cd8-4496-85d6-11ee2f8f0aec.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Alex Pereira</div><div class="div">Heavyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Conor McGregor" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/6096927c-bd2b-4e18-a12f-c879a89063ce.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Conor McGregor</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Khamzat Chimaev" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/0e01bfdb-3fd9-4218-b611-848586300d9d.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Khamzat Chimaev</div><div class="div">Middleweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Israel Adesanya" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/c428be62-b946-42a3-b2fa-d0338bbf0f94.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Israel Adesanya</div><div class="div">Middleweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Sean O'Malley" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/a86b848b-6275-4652-b7ce-dd9b3967bc72.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Sean O'Malley</div><div class="div">Bantamweight</div></div></a>
+        </div>
+      </div>
+
+      <!-- ROW 2 — scrolls RIGHT -->
+      <div class="fighter-row right">
+        <div class="fighter-track">
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Islam Makhachev"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/5ec6b429-0583-4847-a8d9-acac6dd8ffeb.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Islam Makhachev</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Tom Aspinall"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/4f5c8d70-4664-4dbf-9011-60901ac00aee.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Tom Aspinall</div><div class="div">Heavyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Leon Edwards"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/5120086d-322b-47c4-a413-2523737c8ee5.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Leon Edwards</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Justin Gaethje"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1be2047a-c19a-48bc-bc57-03d3296473cb.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Justin Gaethje</div><div class="div">Lightweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Max Holloway"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/af134f57-00e2-425b-9e16-607e27d19e28.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Max Holloway</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Robert Whittaker"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/e050efff-a3a0-467c-a1cd-d087c8371076.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Robert Whittaker</div><div class="div">Light Heavyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Islam Makhachev" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/5ec6b429-0583-4847-a8d9-acac6dd8ffeb.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Islam Makhachev</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Tom Aspinall" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/4f5c8d70-4664-4dbf-9011-60901ac00aee.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Tom Aspinall</div><div class="div">Heavyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Leon Edwards" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/5120086d-322b-47c4-a413-2523737c8ee5.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Leon Edwards</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Justin Gaethje" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1be2047a-c19a-48bc-bc57-03d3296473cb.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Justin Gaethje</div><div class="div">Lightweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Max Holloway" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/af134f57-00e2-425b-9e16-607e27d19e28.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Max Holloway</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Robert Whittaker" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/e050efff-a3a0-467c-a1cd-d087c8371076.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Robert Whittaker</div><div class="div">Light Heavyweight</div></div></a>
+        </div>
+      </div>
+
+      <!-- ROW 3 — scrolls LEFT -->
+      <div class="fighter-row">
+        <div class="fighter-track">
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Dricus Du Plessis"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/fa1c4e6c-8b00-4840-9724-4b42475fa837.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Dricus Du Plessis</div><div class="div">Middleweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Belal Muhammad"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/434817d9-439a-4da3-8600-0365b44bcafb.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Belal Muhammad</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Zhang Weili"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/e61b109d-735b-4a1a-87b8-413b772436e5.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Zhang Weili</div><div class="div">Strawweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Valentina Shevchenko"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1daf46db-7f56-46c3-bcef-f7510cc70d36.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Valentina Shevchenko</div><div class="div">Flyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Amanda Nunes"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/18d5bbf0-d500-42f9-975c-88de643e8f6b.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Amanda Nunes</div><div class="div">Bantamweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Brandon Moreno"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/93e73f43-f720-4833-908b-ea98c679665e.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Brandon Moreno</div><div class="div">Flyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Dricus Du Plessis" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/fa1c4e6c-8b00-4840-9724-4b42475fa837.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Dricus Du Plessis</div><div class="div">Middleweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Belal Muhammad" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/434817d9-439a-4da3-8600-0365b44bcafb.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Belal Muhammad</div><div class="div">Welterweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Zhang Weili" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/e61b109d-735b-4a1a-87b8-413b772436e5.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Zhang Weili</div><div class="div">Strawweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Valentina Shevchenko" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/1daf46db-7f56-46c3-bcef-f7510cc70d36.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Valentina Shevchenko</div><div class="div">Flyweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Amanda Nunes" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/18d5bbf0-d500-42f9-975c-88de643e8f6b.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Amanda Nunes</div><div class="div">Bantamweight</div></div></a>
+          <a class="fighter-card" href="https://app.combatcall.com" aria-label="Brandon Moreno" aria-hidden="true"><img src="https://dmonirhodkyidaedqdms.supabase.co/storage/v1/object/public/fighter-photos/93e73f43-f720-4833-908b-ea98c679665e.png" alt="" loading="lazy" decoding="async"><div class="who"><div class="name">Brandon Moreno</div><div class="div">Flyweight</div></div></a>
+        </div>
+      </div>
     </div>
     <div class="caption">&ldquo;Every fighter. Every fight. Every stat.&rdquo;</div>
   </div>
