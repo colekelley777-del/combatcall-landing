@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<script>document.documentElement.classList.replace('no-js','js');</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy Policy — CombatCall</title>
+<meta name="description" content="How CombatCall collects, uses, and protects your personal information — including sign-in, payment, and analytics data." />
+<meta name="theme-color" content="#0a0d14" />
+<meta name="robots" content="index, follow" />
+
+<!-- Open Graph -->
+<meta property="og:title" content="Privacy Policy — CombatCall" />
+<meta property="og:description" content="How CombatCall collects, uses, and protects your personal information." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://combatcall.com/privacy" />
+<meta property="og:image" content="https://combatcall.com/og-image.png" />
+<meta property="og:site_name" content="CombatCall" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap"></noscript>
+
+<link rel="icon" type="image/png" href="mark.png" />
+
+<style>
+/* ============================================================
+   TOKENS  (kept in sync with index.html)
+============================================================ */
+:root {
+  --bg:           #06070c;
+  --bg-2:         #0a0d14;
+  --panel:        #0d1019;
+  --panel-2:      #11141d;
+  --panel-3:      #161a25;
+  --brand:        #f2c94c;
+  --brand-bright: #ffd966;
+  --brand-dim:    #b39239;
+  --text:         #f4f5f8;
+  --muted:        #9aa0ad;
+  --muted-2:      #6f7686;
+  --border:       rgba(242,201,76,.18);
+  --border-soft:  rgba(255,255,255,.07);
+  --font-sans:    'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif:   'Instrument Serif', Georgia, serif;
+  --maxw:         1180px;
+  --readw:        780px;
+}
+
+/* ============================================================
+   RESET / BASE
+============================================================ */
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:90px; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { font-family: inherit; cursor: pointer; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+/* ============================================================
+   PRIMITIVES (subset reused from index.html)
+============================================================ */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 15px; border-radius: 999px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border-soft);
+  font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: #cdd2dc; font-weight: 500;
+}
+.ser { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: #cfd4de; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 14px 26px; border-radius: 12px; font-weight: 600; font-size: 15px;
+  background: linear-gradient(180deg, #15171f, #0b0d13);
+  border: 1px solid rgba(255,255,255,.1);
+  color: #fff; transition: .25s;
+  box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 10px 30px rgba(0,0,0,.4);
+}
+.btn:hover { border-color: var(--brand); transform: translateY(-2px); }
+.btn svg { width: 15px; height: 15px; }
+.btn-brand {
+  background: linear-gradient(180deg, var(--brand-bright), var(--brand));
+  color: #1a1408;
+  border: 1px solid rgba(0,0,0,.1);
+}
+.btn-brand:hover {
+  box-shadow: 0 12px 36px rgba(242,201,76,.35);
+  transform: translateY(-2px);
+  border-color: rgba(0,0,0,.1);
+}
+
+/* Scroll progress bar (top of viewport) */
+.scroll-prog {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 2px; z-index: 200; pointer-events: none;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, var(--brand-dim), var(--brand-bright));
+  box-shadow: 0 0 12px rgba(242,201,76,.5);
+  transition: transform .12s linear;
+}
+
+/* ============================================================
+   HEADER / NAV  (kept in sync with index.html)
+============================================================ */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  transition: background .3s ease, border-color .3s ease;
+}
+header.scrolled {
+  background: rgba(6,7,12,.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.nav {
+  display: flex; align-items: center; justify-content: space-between; height: 74px;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-logo { height: 30px; width: auto; }
+
+.nav-links {
+  display: flex; gap: 6px; align-items: center;
+  background: rgba(255,255,255,.04); border: 1px solid var(--border-soft);
+  padding: 6px; border-radius: 14px;
+  backdrop-filter: blur(8px);
+}
+.nav-links a {
+  padding: 8px 18px; border-radius: 9px; font-size: 14px; color: #c7ccd6;
+  transition: background .2s, color .2s;
+}
+.nav-links a:hover { background: rgba(255,255,255,.06); color: #fff; }
+
+.nav-cta { display: flex; align-items: center; gap: 14px; }
+.signin-link { font-size: 14px; color: #c7ccd6; transition: color .2s; }
+.signin-link:hover { color: var(--brand); }
+
+.menu-btn { display: none; background: none; border: none; color: #fff; }
+.menu-btn svg { width: 26px; height: 26px; }
+
+/* ============================================================
+   LEGAL DOCUMENT LAYOUT
+============================================================ */
+.legal-hero {
+  padding: 150px 0 40px;
+  position: relative;
+  border-bottom: 1px solid var(--border-soft);
+}
+.legal-hero::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(800px 360px at 50% -10%, rgba(242,201,76,.10), transparent 70%);
+  pointer-events: none;
+}
+.legal-hero .wrap { position: relative; max-width: var(--readw); }
+.legal-hero h1 {
+  font-size: clamp(34px, 5vw, 52px); font-weight: 600; line-height: 1.05;
+  letter-spacing: -.02em; margin: 18px 0 0;
+}
+.legal-hero .effective {
+  color: var(--brand); font-size: 14px; margin-top: 16px; font-weight: 500;
+}
+.legal-hero .intro {
+  color: var(--muted); font-size: 16px; margin-top: 14px; max-width: 680px;
+}
+
+.legal-body {
+  max-width: var(--readw);
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+.legal-body section { margin-bottom: 40px; }
+.legal-body h2 {
+  font-size: clamp(20px, 3vw, 25px); font-weight: 600; letter-spacing: -.01em;
+  margin: 0 0 14px; color: var(--text);
+}
+.legal-body h2 .num {
+  color: var(--brand); font-family: var(--font-serif); font-style: italic;
+  font-weight: 400; margin-right: 10px;
+}
+.legal-body h3 {
+  font-size: 16px; font-weight: 600; margin: 22px 0 8px; color: #e7e9ef;
+}
+.legal-body p { color: var(--muted); font-size: 15.5px; margin: 0 0 14px; }
+.legal-body ul { list-style: none; margin: 0 0 16px; padding: 0; }
+.legal-body li {
+  color: var(--muted); font-size: 15.5px; line-height: 1.6;
+  padding-left: 22px; position: relative; margin-bottom: 10px;
+}
+.legal-body li::before {
+  content: ""; position: absolute; left: 2px; top: 11px;
+  width: 6px; height: 6px; border-radius: 2px; background: var(--brand);
+}
+.legal-body li strong { color: #e7e9ef; font-weight: 600; }
+.legal-body a.inline { color: var(--brand); border-bottom: 1px solid rgba(242,201,76,.3); transition: border-color .2s; }
+.legal-body a.inline:hover { border-color: var(--brand); }
+
+/* Processor table */
+.proc-table {
+  width: 100%; border-collapse: collapse; margin: 6px 0 8px;
+  border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden;
+  font-size: 14.5px;
+}
+.proc-table th, .proc-table td {
+  text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border-soft);
+  vertical-align: top;
+}
+.proc-table th {
+  background: rgba(255,255,255,.03); color: #cdd2dc; font-weight: 600; font-size: 13px;
+  letter-spacing: .03em; text-transform: uppercase;
+}
+.proc-table td { color: var(--muted); }
+.proc-table td:first-child { color: #e7e9ef; font-weight: 500; white-space: nowrap; }
+.proc-table tr:last-child td { border-bottom: none; }
+
+.contact-card {
+  margin-top: 8px; padding: 22px 24px;
+  background: var(--panel); border: 1px solid var(--border-soft); border-radius: 14px;
+}
+.contact-card p { margin-bottom: 6px; }
+.contact-card a { color: var(--brand); font-weight: 600; }
+
+.back-row { margin-top: 8px; }
+
+/* ============================================================
+   FOOTER  (kept in sync with index.html)
+============================================================ */
+footer {
+  border-top: 1px solid var(--border-soft);
+  background: #05060a;
+  padding: 60px 24px 40px;
+}
+.foot { max-width: var(--maxw); margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+.foot-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; }
+.foot-links { display: flex; gap: 28px; flex-wrap: wrap; }
+.foot-links a { color: #cdd2dc; font-size: 14px; transition: color .2s; }
+.foot-links a:hover { color: var(--brand); }
+.foot-meta {
+  padding-top: 24px; border-top: 1px solid var(--border-soft);
+  display: flex; flex-direction: column; gap: 12px;
+  color: var(--muted-2); font-size: 12.5px; line-height: 1.6;
+}
+.foot-meta .disclaimer { font-style: italic; }
+.foot-meta .copyright { font-size: 11.5px; }
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 880px) {
+  .nav-links { display: none; }
+  .menu-btn { display: block; }
+  .signin-link { display: none; }
+  .nav-cta .btn { padding: 11px 16px; font-size: 13px; }
+  .legal-hero { padding: 120px 0 32px; }
+  .proc-table, .proc-table tbody, .proc-table tr, .proc-table td { display: block; }
+  .proc-table thead { display: none; }
+  .proc-table tr { border-bottom: 1px solid var(--border-soft); padding: 6px 0; }
+  .proc-table tr:last-child { border-bottom: none; }
+  .proc-table td { border-bottom: none; padding: 4px 16px; }
+  .proc-table td:first-child { padding-top: 12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="scroll-prog" id="scrollProg" aria-hidden="true"></div>
+
+<!-- =========================================================
+     HEADER  (mirrors index.html)
+========================================================= -->
+<header id="top">
+  <div class="wrap nav">
+    <a class="brand" href="/" aria-label="CombatCall home">
+      <img src="logo.png" alt="CombatCall" class="brand-logo">
+    </a>
+
+    <nav class="nav-links" id="navlinks">
+      <a href="/#features">Services</a>
+      <a href="/#process">Process</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="https://app.combatcall.com" data-cta="nav">Sign Up Now</a>
+    </nav>
+
+    <div class="nav-cta">
+      <a class="signin-link" href="https://app.combatcall.com/login">Sign in</a>
+      <a class="btn btn-brand" href="https://app.combatcall.com" data-cta="nav">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
+        Sign Up Now
+      </a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- =========================================================
+     LEGAL HERO
+========================================================= -->
+<section class="legal-hero">
+  <div class="wrap">
+    <span class="eyebrow">Legal</span>
+    <h1>Privacy <span class="ser">Policy</span></h1>
+    <div class="effective">Effective date: June 2026</div>
+    <p class="intro">
+      This Privacy Policy explains what information CombatCall collects, why we collect it,
+      who we share it with, and the choices you have. CombatCall is a data-driven UFC and
+      MMA analytics product. We keep this short, plain, and honest.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================================
+     LEGAL BODY
+========================================================= -->
+<main class="legal-body">
+
+  <section>
+    <h2><span class="num">01</span>Who we are</h2>
+    <p>
+      CombatCall ("CombatCall," "we," "us," or "our") is operated by CMK Enterprises LLC,
+      9112 Gettysburg Drive, Huntington Beach, CA 92646, United States. We provide a UFC and
+      MMA fight-analytics and picks service at
+      <a class="inline" href="https://combatcall.com">combatcall.com</a> and
+      <a class="inline" href="https://app.combatcall.com">app.combatcall.com</a> (together, the "Service").
+    </p>
+    <p>
+      This policy covers personal information we process when you visit our website,
+      create an account, or use the Service. If you have questions about anything here,
+      email us at <a class="inline" href="mailto:support@combatcall.com">support@combatcall.com</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span>Information we collect</h2>
+
+    <h3>Account information (via Google Sign-In)</h3>
+    <p>
+      We use Supabase Auth to handle sign-in, including "Sign in with Google." When you sign
+      in with Google, Google shares a limited profile with us so we can create and identify
+      your account:
+    </p>
+    <ul>
+      <li><strong>Email address</strong> — used as your account identifier and for service-related communication.</li>
+      <li><strong>Name and basic profile</strong> — such as your display name and profile picture, if available.</li>
+      <li><strong>A Google account identifier</strong> — used to link your sign-in to your CombatCall account.</li>
+    </ul>
+    <p>
+      We do not receive your Google password, and we only request the basic profile and email
+      scopes needed to sign you in. You can also create an account with an email and password.
+    </p>
+
+    <h3>Subscription and payment information</h3>
+    <p>
+      CombatCall offers paid subscriptions. Payments are processed by Stripe. When you
+      subscribe, you provide your payment details directly to Stripe — <strong>we never see or
+      store your full card number.</strong> We receive and store limited billing data from
+      Stripe, such as your subscription status, plan, billing dates, the last four digits and
+      card brand, and a Stripe customer identifier, so we can manage your access and support you.
+    </p>
+
+    <h3>Usage and device information</h3>
+    <ul>
+      <li><strong>Usage data</strong> — pages and features you use, picks and analytics you view, and general activity within the Service, so we can operate and improve the product.</li>
+      <li><strong>Device and log data</strong> — IP address, browser type, device type, and timestamps, collected automatically by our hosting and infrastructure for security and reliability.</li>
+    </ul>
+
+    <h3>Marketing email captures</h3>
+    <p>
+      If you enter your email to unlock free fights, join a waitlist, or subscribe to updates,
+      we store that email address so we can send you relevant CombatCall content and offers.
+      You can unsubscribe at any time.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span>How we use your information</h2>
+    <ul>
+      <li>To create, authenticate, and secure your account.</li>
+      <li>To provide the Service — fight analytics, predictions, odds, and picks.</li>
+      <li>To process subscriptions, payments, and renewals through Stripe.</li>
+      <li>To respond to your support requests and communicate about your account.</li>
+      <li>To send marketing and product updates where you have opted in (you can opt out anytime).</li>
+      <li>To monitor, debug, secure, and improve the Service.</li>
+      <li>To comply with legal obligations and enforce our terms.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span>We do not sell your personal data</h2>
+    <p>
+      We do not sell your personal information, and we do not share it with third parties for
+      their own advertising. We share information only with the service providers below, and only
+      as needed to run CombatCall.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span>Third-party service providers</h2>
+    <p>
+      We rely on a small set of trusted providers ("processors") to operate the Service. Each
+      processes data only on our behalf and is bound by its own privacy commitments:
+    </p>
+    <table class="proc-table">
+      <thead>
+        <tr><th>Provider</th><th>Purpose</th><th>Data involved</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Google</td>
+          <td>"Sign in with Google" authentication</td>
+          <td>Email, name, basic profile, Google account ID</td>
+        </tr>
+        <tr>
+          <td>Supabase</td>
+          <td>Authentication and database</td>
+          <td>Account data, email, usage records</td>
+        </tr>
+        <tr>
+          <td>Stripe</td>
+          <td>Payment and subscription processing</td>
+          <td>Payment details (held by Stripe), billing status</td>
+        </tr>
+        <tr>
+          <td>Vercel</td>
+          <td>Website and application hosting</td>
+          <td>Request and log data (e.g. IP, browser)</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      We may also disclose information if required by law, to protect our rights or users' safety,
+      or in connection with a business transfer such as a merger or acquisition.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span>Cookies and local storage</h2>
+    <p>
+      CombatCall uses cookies and browser local storage primarily to keep you signed in. When you
+      authenticate, Supabase Auth stores a session token in your browser so you don't have to log
+      in on every visit. We also use essential storage for security and basic site functionality.
+    </p>
+    <p>
+      You can clear cookies and local storage in your browser settings, but doing so will sign you
+      out and may affect how the Service works.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">07</span>Data retention</h2>
+    <p>
+      We keep your personal information for as long as your account is active or as needed to
+      provide the Service. If you close your account or request deletion, we delete or anonymize
+      your personal data within a reasonable period, except where we must retain certain records
+      to meet legal, tax, accounting, or fraud-prevention obligations (for example, payment and
+      billing records held by Stripe).
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">08</span>Your rights and choices</h2>
+    <p>Depending on where you live, you may have the right to:</p>
+    <ul>
+      <li><strong>Access</strong> the personal information we hold about you.</li>
+      <li><strong>Correct</strong> inaccurate or incomplete information.</li>
+      <li><strong>Delete</strong> your account and associated personal data.</li>
+      <li><strong>Opt out</strong> of marketing emails at any time via the unsubscribe link or by contacting us.</li>
+      <li><strong>Export</strong> a copy of the information you provided to us.</li>
+    </ul>
+    <p>
+      To exercise any of these rights, email
+      <a class="inline" href="mailto:support@combatcall.com">support@combatcall.com</a> from the
+      address on your account. We will respond within a reasonable timeframe and may need to verify
+      your identity before acting on a request.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">09</span>Children's privacy</h2>
+    <p>
+      CombatCall is intended for adults 18 and older and is not directed to children. We do not
+      knowingly collect personal information from anyone under 18. If you believe a minor has
+      provided us with personal data, contact us and we will delete it.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span>Changes to this policy</h2>
+    <p>
+      We may update this Privacy Policy from time to time. When we make material changes, we will
+      update the effective date above and, where appropriate, notify you. Your continued use of the
+      Service after an update means you accept the revised policy.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">11</span>Contact us</h2>
+    <div class="contact-card">
+      <p>Questions, requests, or concerns about your privacy?</p>
+      <p>Email <a href="mailto:support@combatcall.com">support@combatcall.com</a></p>
+      <p style="color:var(--muted-2);font-size:13.5px;margin-top:10px;margin-bottom:0;">
+        CMK Enterprises LLC &middot; 9112 Gettysburg Drive, Huntington Beach, CA 92646, USA
+      </p>
+    </div>
+    <div class="back-row" style="margin-top:28px;">
+      <a class="btn" href="/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to CombatCall
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- =========================================================
+     FOOTER  (mirrors index.html)
+========================================================= -->
+<footer>
+  <div class="foot">
+    <div class="foot-top">
+      <a class="brand" href="/" aria-label="CombatCall home">
+        <img src="logo.png" alt="CombatCall" class="brand-logo">
+      </a>
+      <div class="foot-links">
+        <a href="https://app.combatcall.com/terms" target="_blank" rel="noopener">Terms</a>
+        <a href="/privacy">Privacy</a>
+        <a href="mailto:support@combatcall.com">Contact</a>
+      </div>
+    </div>
+
+    <div class="foot-meta">
+      <div class="address">CMK Enterprises LLC &middot; 9112 Gettysburg Drive, Huntington Beach, CA 92646</div>
+      <div class="disclaimer">18+. Informational only &mdash; not gambling advice. CombatCall does not accept or facilitate wagers. Need help? Call 1-800-GAMBLER.</div>
+      <div class="copyright">&copy; 2026 CMK Enterprises LLC. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // --- Mobile nav toggle ---
+  const menuBtn  = document.getElementById('menuBtn');
+  const navLinks = document.getElementById('navlinks');
+  if (menuBtn && navLinks) {
+    menuBtn.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
+  // --- Header scrolled state + scroll progress bar ---
+  const header   = document.querySelector('header');
+  const progress = document.getElementById('scrollProg');
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const p   = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    if (progress) progress.style.setProperty('--p', p.toFixed(3));
+    if (header) header.classList.toggle('scrolled', window.scrollY > 24);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  onScroll();
+</script>
+
+</body>
+</html>
