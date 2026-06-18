@@ -9,7 +9,7 @@
     {
       "source": "/landing-hero-video.mp4",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=31536000" },
         { "key": "Accept-Ranges", "value": "bytes" }
       ]
     },

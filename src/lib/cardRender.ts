@@ -39,6 +39,12 @@ export function cardLine(card: RawCard): string | null {
  * The model's read as a short percentage phrase, e.g. "Our read: ~62%".
  * Sourced from the same fields the app's receipt uses: v3 p_shrunk when present,
  * else the card's combined_rate. Returns null if nothing measured.
+ *
+ * NOTE — the two source fields live on DIFFERENT scales (verified against prod
+ * Supabase), and `pct()` only rounds (it does not multiply). Each path is scaled
+ * to land at 0–100 before `pct()`; do not "unify" them:
+ *   - prop_score `p_over` is a 0–1 probability (observed 0.26–0.86) → ×100 here.
+ *   - non-prop `combined_rate` is already a 0–100 percentage (observed 10–100) → no ×100.
  */
 export function cardOurRead(card: RawCard): string | null {
   if (card.is_prop_score) {
@@ -47,13 +53,13 @@ export function cardOurRead(card: RawCard): string | null {
     // The card represents the OVER or UNDER side; phrase the probability for the
     // side that is actually the pick so it never contradicts the bet shown.
     const p = card.over ? pOver : 1 - (pOver as number);
-    const pctStr = pct(p * 100);
+    const pctStr = pct(p * 100); // p is 0–1 → scale to 0–100
     return pctStr
       ? `Our read: ~${pctStr} to hit the ${card.over ? 'over' : 'under'}`
       : null;
   }
   const d = card.out_detail || {};
-  const rate = pct(d.combined_rate);
+  const rate = pct(d.combined_rate); // combined_rate already 0–100 — no scaling
   return rate ? `Our read: hit rate ~${rate}` : null;
 }
 

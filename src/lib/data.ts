@@ -267,14 +267,18 @@ async function buildNextEvent(): Promise<EventView | null> {
     (a: any, b: any) => boutKey(a.bout_order) - boutKey(b.bout_order)
   );
   // The free set is EXACTLY the opening 1-2 prelims — fights with a real
-  // bout_order, taken from the end of the ascending sort. A null/missing
-  // bout_order is excluded so an incomplete-ordering fight defaults to LOCKED
-  // (the safe direction — never accidentally expose a paid pick). boutKey() maps
-  // null to +Infinity, which would otherwise float a null-bout fight into the
-  // free slice; the explicit guard prevents that leak.
+  // bout_order on the PRELIM side (bout_order > MAIN_CARD_SIZE), taken from the
+  // end of the ascending sort. Two guards, both fail-closed:
+  //   - `bout_order != null` excludes incomplete-ordering fights (default LOCKED;
+  //     boutKey() maps null to +Infinity, which would otherwise float a null-bout
+  //     fight into the free slice).
+  //   - `bout_order > MAIN_CARD_SIZE` constrains the set to actual prelims, so a
+  //     short prelim slate (e.g. a cancelled prelim leaving only 1) can never let
+  //     slice(-FREE_PICK_FIGHTS) walk up into the main card and give away a paid
+  //     pick for free.
   const freePickIds = new Set(
     sortedFights
-      .filter((f: any) => f.bout_order != null)
+      .filter((f: any) => f.bout_order != null && f.bout_order > MAIN_CARD_SIZE)
       .slice(-FREE_PICK_FIGHTS)
       .map((f: any) => f.id)
   );
