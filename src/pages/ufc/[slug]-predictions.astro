@@ -52,9 +52,12 @@ const faqs = [
 
 const schemas = [
   eventSchema(event),
+  // Two items only: a "UFC Predictions" hub page doesn't exist in Phase 1, and
+  // pointing it at `canonical` would duplicate the event's URL — which Google's
+  // rich-results validator rejects. CombatCall → event keeps every position's
+  // `item` URL distinct.
   breadcrumbSchema([
     { name: 'CombatCall', url: SITE + '/' },
-    { name: 'UFC Predictions', url: canonical },
     { name: event.name, url: canonical },
   ]),
   faqSchema(faqs),
@@ -64,7 +67,7 @@ const schemas = [
 <SeoLayout {title} {description} {canonical} schemas={schemas}>
   <div class="wrap">
     <nav class="cc-crumbs" aria-label="Breadcrumb">
-      <a href="/">CombatCall</a> › UFC Predictions › {event.name}
+      <a href="/">CombatCall</a> › {event.name}
     </nav>
 
     <h1>{event.name}: Predictions, Picks &amp; Analysis</h1>

@@ -128,6 +128,8 @@ const { source } = Astro.props;
         } catch {
           /* private browsing — gate re-shows next visit, acceptable */
         }
+        // track() reads the global window.posthog, so it fires even though this
+        // component script is a separate module instance from SeoLayout's init().
         track('email_captured', { source, marketing_consent: true });
         unlock();
       } catch {

@@ -72,8 +72,9 @@ export interface FighterView {
   // headline stats (only present when the model has them)
   slpm: number | null;
   sapm: number | null;
-  str_acc: number | null;
-  str_def: number | null;
+  // Stored in Supabase as percent strings (e.g. "56%") — rendered verbatim.
+  str_acc: string | number | null;
+  str_def: string | number | null;
   td_avg: number | null;
 }
 

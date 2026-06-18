@@ -36,8 +36,9 @@ const uniqueAnalysis = Array.from(
   new Set(ranked.cards.slice(0, 4).flatMap(cardAnalysisBullets))
 ).slice(0, 6);
 
-const fmtStat = (n: number | null, suffix = '') =>
-  n == null ? '—' : `${n}${suffix}`;
+// str_acc/str_def arrive as percent strings ("56%"); slpm/td_avg as numbers.
+// Render verbatim — the percent sign is already part of the stored value.
+const fmtStat = (n: string | number | null) => (n == null ? '—' : `${n}`);
 const recStr = (r: { wins: number; losses: number; draws: number }) =>
   r.draws ? `${r.wins}-${r.losses}-${r.draws}` : `${r.wins}-${r.losses}`;
 ---
@@ -75,13 +76,13 @@ const recStr = (r: { wins: number; losses: number; draws: number }) =>
     <div class="lbl">Strikes/min</div>
     <div class="r">{fmtStat(blue.slpm)}</div>
 
-    <div class="l">{fmtStat(red.str_acc, '%')}</div>
+    <div class="l">{fmtStat(red.str_acc)}</div>
     <div class="lbl">Str. Acc.</div>
-    <div class="r">{fmtStat(blue.str_acc, '%')}</div>
+    <div class="r">{fmtStat(blue.str_acc)}</div>
 
-    <div class="l">{fmtStat(red.str_def, '%')}</div>
+    <div class="l">{fmtStat(red.str_def)}</div>
     <div class="lbl">Str. Def.</div>
-    <div class="r">{fmtStat(blue.str_def, '%')}</div>
+    <div class="r">{fmtStat(blue.str_def)}</div>
 
     <div class="l">{fmtStat(red.td_avg)}</div>
     <div class="lbl">TD/15min</div>
