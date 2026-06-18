@@ -35,10 +35,15 @@ const SUPABASE_ANON_KEY =
   env.SUPABASE_ANON_KEY || env.PUBLIC_SUPABASE_ANON_KEY || '';
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  throw new Error(
-    'Missing SUPABASE_URL / SUPABASE_ANON_KEY. The SEO build needs the anon ' +
-      'key to fetch the upcoming card at build time (run via `op run`).'
+  // process.exit(1), not throw: this module loads inside getStaticPaths, and
+  // some Astro versions catch a module-load throw and treat the route as 0
+  // paths — that would deploy green with no UFC pages. A hard exit fails the
+  // build loudly instead.
+  console.error(
+    '[SEO] FATAL: Missing SUPABASE_URL / SUPABASE_ANON_KEY. The SEO build needs ' +
+      'the anon key to fetch the upcoming card at build time (run via `op run`).'
   );
+  process.exit(1);
 }
 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {

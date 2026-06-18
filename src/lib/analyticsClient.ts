@@ -23,12 +23,19 @@ export function initAnalytics(): void {
   if (!key) return; // no key configured → stay quiet (local/preview)
   const host =
     (import.meta.env.PUBLIC_POSTHOG_HOST as string) || 'https://us.i.posthog.com';
-  posthog.init(key, {
-    api_host: host,
-    capture_pageview: true,
-    person_profiles: 'identified_only',
-  });
+  // Mark initialized BEFORE init() and guard the call: if init() throws, we must
+  // not leave initialized=false (every later call would retry init forever).
+  // Analytics must never block the page.
   initialized = true;
+  try {
+    posthog.init(key, {
+      api_host: host,
+      capture_pageview: true,
+      person_profiles: 'identified_only',
+    });
+  } catch {
+    /* analytics must never throw into caller logic */
+  }
 }
 
 // Fire a funnel event. Guarded so it's a silent no-op when PostHog isn't loaded

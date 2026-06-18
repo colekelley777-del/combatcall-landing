@@ -8,8 +8,11 @@
 export function slugify(input: string): string {
   return (input || '')
     .normalize('NFKD')
-    // drop combining marks (accents) so "Bolaños" -> "bolanos"
-    .replace(/[̀-ͯ]/g, '')
+    // drop combining marks (accents) so "Bolaños" -> "bolanos".
+    // Use the \u escape range (U+0300–U+036F) rather than literal combining
+    // characters in source — a literal range is one editor re-encode away from
+    // silently breaking and 404ing every accented-name matchup page.
+    .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/['’.]/g, '') // O'Malley -> omalley, "Jr." -> jr
     .replace(/&/g, ' and ')
