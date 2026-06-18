@@ -81,7 +81,7 @@ export interface FighterView {
 // Card structure (single source of truth — bout_order semantics live here, not
 // scattered across pages/components).
 const MAIN_EVENT_BOUT_ORDER = 1; // lowest bout_order = main event
-const MAIN_CARD_SIZE = 5; // bout_order <= this = main card, else prelims
+const MAIN_CARD_SIZE = 5; // UFC standard; super-cards sometimes run 6 main card bouts — bump if a main card fight mis-appears under Prelims (no is_main_card column exists to key off)
 
 export type FightSection = 'main' | 'prelim';
 
@@ -199,7 +199,7 @@ async function buildNextEvent(): Promise<EventView | null> {
   const fights = fightsRaw || [];
   if (fights.length === 0) {
     console.log(
-      `[SEO] ${ev.name} (${ev.event_date}) has no active fights — event page only, 0 matchup pages.`
+      `[SEO] ${ev.name} (${ev.event_date}) has no active fights — 0 UFC pages will be generated.`
     );
     return {
       id: ev.id,
