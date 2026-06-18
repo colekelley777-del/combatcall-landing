@@ -20,7 +20,12 @@ export interface Props {
 const { source } = Astro.props;
 ---
 
-<div class="cc-gate" data-source={source}>
+<!-- Ships hidden to avoid a returning-subscriber flash: the gate (and its locked-
+     pick blurs) would otherwise be visible until the localStorage check runs. The
+     script reveals it only for first-time visitors. noscript fallback un-hides it
+     so visitors without JS aren't left staring at blurred picks with no unlock. -->
+<noscript><style>.cc-gate[hidden] { display: block; }</style></noscript>
+<div class="cc-gate" data-source={source} hidden>
   <div class="cc-gate-inner">
     <p class="cc-gate-kicker">Unlock the full card free</p>
     <h3 class="cc-gate-title">See every model pick on this card.</h3>
@@ -97,8 +102,15 @@ const { source } = Astro.props;
     if (!res.ok) throw new Error(`capture failed (${res.status})`);
   }
 
-  // Returning visitor — reveal immediately.
-  if (hasCaptured()) unlock();
+  // Decide gate visibility without a flash. The gate ships `hidden`:
+  //   - Returning subscriber → unlock() reveals the picks; gate stays hidden.
+  //   - First-time visitor → reveal the gate so they can unlock. Picks stay
+  //     server-blurred until they capture.
+  if (hasCaptured()) {
+    unlock();
+  } else {
+    for (const g of gates) g.hidden = false;
+  }
 
   for (const gate of gates) {
     const form = gate.querySelector<HTMLFormElement>('.cc-gate-form');
@@ -137,7 +149,14 @@ const { source } = Astro.props;
           errEl.textContent = 'Could not save email. Please try again.';
           errEl.hidden = false;
         }
-        if (btn) btn.removeAttribute('disabled');
+        // Throttle: this gate is the conversion touch point and posts to the anon
+        // PostgREST endpoint, so a bot could otherwise flood novel addresses by
+        // hammering submit. Keep the button disabled for 5s on the error path
+        // before re-enabling — raises the effort bar without blocking a real user
+        // who just needs to retry. (A successful submit leaves the button disabled.)
+        if (btn) {
+          setTimeout(() => btn.removeAttribute('disabled'), 5000);
+        }
       }
     });
   }

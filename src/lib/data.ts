@@ -71,7 +71,6 @@ export interface FighterView {
   record: { wins: number; losses: number; draws: number };
   // headline stats (only present when the model has them)
   slpm: number | null;
-  sapm: number | null;
   // Stored in Supabase as percent strings (e.g. "56%") — rendered verbatim.
   str_acc: string | number | null;
   str_def: string | number | null;
@@ -119,7 +118,6 @@ function toFighterView(f: any): FighterView {
     nickname: f?.nickname ?? null,
     record: rec,
     slpm: f?.slpm ?? null,
-    sapm: f?.sapm ?? null,
     str_acc: f?.str_acc ?? null,
     str_def: f?.str_def ?? null,
     td_avg: f?.td_avg ?? null,
@@ -181,13 +179,13 @@ async function buildNextEvent(): Promise<EventView | null> {
       red_fighter:fighters!fighter_red_id(
         id, first_name, last_name, nickname,
         wins, losses, draws,
-        slpm, sapm, str_acc, str_def, td_avg,
+        slpm, str_acc, str_def, td_avg,
         fighter_records(wins, losses)
       ),
       blue_fighter:fighters!fighter_blue_id(
         id, first_name, last_name, nickname,
         wins, losses, draws,
-        slpm, sapm, str_acc, str_def, td_avg,
+        slpm, str_acc, str_def, td_avg,
         fighter_records(wins, losses)
       )
     `
@@ -276,12 +274,30 @@ async function buildNextEvent(): Promise<EventView | null> {
   //     short prelim slate (e.g. a cancelled prelim leaving only 1) can never let
   //     slice(-FREE_PICK_FIGHTS) walk up into the main card and give away a paid
   //     pick for free.
-  const freePickIds = new Set(
-    sortedFights
-      .filter((f: any) => f.bout_order != null && f.bout_order > MAIN_CARD_SIZE)
-      .slice(-FREE_PICK_FIGHTS)
-      .map((f: any) => f.id)
-  );
+  const freePickFights = sortedFights
+    .filter((f: any) => f.bout_order != null && f.bout_order > MAIN_CARD_SIZE)
+    .slice(-FREE_PICK_FIGHTS);
+  const freePickIds = new Set(freePickFights.map((f: any) => f.id));
+
+  // Super-card guard. MAIN_CARD_SIZE is a fixed assumption — no is_main_card /
+  // bout_type / main_card_size column exists to key off (schema verified). On a
+  // super-card with a 6-bout main card, bout_order 6 is really a MAIN-card fight
+  // but reads as a prelim here; on a short card slice(-FREE_PICK_FIGHTS) can then
+  // pull it into the free pool and give a paid main-card pick away free. We can't
+  // detect a super-card from the data, but a FREE pick landing at the main-card
+  // boundary (bout_order === MAIN_CARD_SIZE + 1) is the exact leak signature —
+  // the first "prelim" after the assumed main card. Fail loud so the next
+  // super-card surfaces in the build log instead of silently leaking a pick.
+  for (const f of freePickFights) {
+    if (f.bout_order <= MAIN_CARD_SIZE + 1) {
+      console.warn(
+        `[SEO] Free pick assigned to a boundary bout on ${ev.name}: bout_order ` +
+          `${f.bout_order} sits just above MAIN_CARD_SIZE=${MAIN_CARD_SIZE}. If ` +
+          `this is a super-card with a 6-bout main card, a MAIN-card pick is being ` +
+          `given away FREE — verify the card structure and bump MAIN_CARD_SIZE.`
+      );
+    }
+  }
 
   const fightViews: FightView[] = sortedFights.map((f: any): FightView => {
     const red = toFighterView(f.red_fighter);
