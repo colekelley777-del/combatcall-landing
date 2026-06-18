@@ -5,6 +5,24 @@
 import type { EventView, FightView } from './data';
 import { SITE, eventUrlFromSlug, matchupUrlFromSlug } from './site';
 
+/**
+ * Serialize a JSON-LD object for safe embedding in an inline
+ * <script type="application/ld+json"> tag.
+ *
+ * Dynamic strings (fighter names, event names, FAQ text) come from Supabase and
+ * could in principle contain `<`, `>`, or `&` — a value like `</script>` would
+ * otherwise break out of the script element. Escaping these three characters
+ * (the standard safe-JSON-LD pattern) makes breakout impossible while keeping
+ * the JSON valid: an HTML parser un-escapes the entities before the JSON-LD
+ * consumer (Google) parses the text, so the schema is unchanged.
+ */
+export function serializeJsonLd(schema: Record<string, unknown>): string {
+  return JSON.stringify(schema)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+}
+
 export function breadcrumbSchema(
   crumbs: { name: string; url: string }[]
 ): Record<string, unknown> {

@@ -10,6 +10,7 @@
 // Pages are fully static HTML (no client-only rendering) so they're crawlable.
 
 import { OG_IMAGE } from '../lib/site';
+import { serializeJsonLd } from '../lib/schema';
 
 export interface Props {
   title: string;
@@ -69,7 +70,7 @@ const ogImage = OG_IMAGE;
       schemas.map((s) => (
         <script
           type="application/ld+json"
-          set:html={JSON.stringify(s)}
+          set:html={serializeJsonLd(s)}
         />
       ))
     }

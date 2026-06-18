@@ -164,7 +164,12 @@ export function getNextEvent(): Promise<EventView | null> {
 
 async function buildNextEvent(): Promise<EventView | null> {
   const ev = await fetchNextEvent();
-  if (!ev) return null;
+  if (!ev) {
+    // Spec (#5): surface generation counts so a between-events build that
+    // produces 0 UFC pages is loud, not a silent thin-page flood.
+    console.log('[SEO] No upcoming event found — 0 UFC pages will be generated.');
+    return null;
+  }
 
   // Fights on the card (uncancelled), with fighter stat blocks. Mirrors the
   // shape db.js getUpcomingEvents pulls.
@@ -187,11 +192,15 @@ async function buildNextEvent(): Promise<EventView | null> {
       )
     `
     )
-    .eq('event_id', ev.id);
+    .eq('event_id', ev.id)
+    .eq('cancelled', false);
   if (fightsErr) throw fightsErr;
 
-  const fights = (fightsRaw || []).filter((f: any) => !f.cancelled);
+  const fights = fightsRaw || [];
   if (fights.length === 0) {
+    console.log(
+      `[SEO] ${ev.name} (${ev.event_date}) has no active fights — event page only, 0 matchup pages.`
+    );
     return {
       id: ev.id,
       name: ev.name,
@@ -247,8 +256,17 @@ async function buildNextEvent(): Promise<EventView | null> {
   const sortedFights = [...fights].sort(
     (a: any, b: any) => boutKey(a.bout_order) - boutKey(b.bout_order)
   );
+  // The free set is EXACTLY the opening 1-2 prelims — fights with a real
+  // bout_order, taken from the end of the ascending sort. A null/missing
+  // bout_order is excluded so an incomplete-ordering fight defaults to LOCKED
+  // (the safe direction — never accidentally expose a paid pick). boutKey() maps
+  // null to +Infinity, which would otherwise float a null-bout fight into the
+  // free slice; the explicit guard prevents that leak.
   const freePickIds = new Set(
-    sortedFights.slice(-FREE_PICK_FIGHTS).map((f: any) => f.id)
+    sortedFights
+      .filter((f: any) => f.bout_order != null)
+      .slice(-FREE_PICK_FIGHTS)
+      .map((f: any) => f.id)
   );
 
   const fightViews: FightView[] = sortedFights.map((f: any): FightView => {
@@ -274,6 +292,10 @@ async function buildNextEvent(): Promise<EventView | null> {
       ranked,
     };
   });
+
+  console.log(
+    `[SEO] Generating pages for: ${ev.name} (${ev.event_date}) — ${fightViews.length} fights`
+  );
 
   return {
     id: ev.id,
