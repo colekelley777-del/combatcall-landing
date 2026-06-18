@@ -1,0 +1,115 @@
+---
+// Upcoming-event predictions page: /ufc/<event-slug>-predictions
+//
+// Phase 1: the ONE next upcoming card. getStaticPaths returns a single path
+// (the next event), so the build emits exactly one event page — no thin-page
+// floods. Every fight shows full analysis + stats publicly; the model pick is
+// public for the opening prelims and locked behind the email gate for the rest.
+
+import SeoLayout from '../../layouts/SeoLayout.astro';
+import FightCard from '../../components/FightCard.astro';
+import EmailGate from '../../components/EmailGate.astro';
+import { getNextEvent } from '../../lib/data';
+import { eventSchema, breadcrumbSchema, faqSchema } from '../../lib/schema';
+import { SITE, eventUrlFromSlug } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const event = await getNextEvent();
+  if (!event || event.fights.length === 0) return [];
+  return [{ params: { slug: event.slug }, props: { event } }];
+}
+
+const { event } = Astro.props;
+const canonical = eventUrlFromSlug(event.slug);
+
+const prettyDate = new Date(event.date + 'T00:00:00Z').toLocaleDateString(
+  'en-US',
+  { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }
+);
+
+const title = `${event.name}: Predictions, Picks & Analysis | CombatCall`;
+const description = `Data-driven predictions and model picks for every fight on ${event.name} (${prettyDate}). Fighter stats, matchup analysis, and the betting line for all ${event.fights.length} bouts.`;
+
+const mainCard = event.fights.filter((f) => f.section === 'main');
+const prelims = event.fights.filter((f) => f.section === 'prelim');
+
+// Single source of truth for the page FAQ: drives BOTH the JSON-LD schema and
+// the visible <details> markup so they can never drift.
+const faqs = [
+  {
+    q: `Who does CombatCall's model pick on ${event.name}?`,
+    a: `CombatCall's model produces a pick for every fight on ${event.name}. The opening prelim picks are shown free on this page; the rest unlock with a free email signup.`,
+  },
+  {
+    q: `How are CombatCall's UFC predictions generated?`,
+    a: `Each pick is generated from fighter history, matchup style data, and the current market line — not opinion. CombatCall is an analytics tool, not gambling advice.`,
+  },
+  {
+    q: `Is CombatCall free?`,
+    a: `Yes — you can see the opening prelims free, and a free email signup unlocks the full card's model picks. A paid subscription unlocks every event in full.`,
+  },
+];
+
+const schemas = [
+  eventSchema(event),
+  breadcrumbSchema([
+    { name: 'CombatCall', url: SITE + '/' },
+    { name: 'UFC Predictions', url: canonical },
+    { name: event.name, url: canonical },
+  ]),
+  faqSchema(faqs),
+];
+---
+
+<SeoLayout {title} {description} {canonical} schemas={schemas}>
+  <div class="wrap">
+    <nav class="cc-crumbs" aria-label="Breadcrumb">
+      <a href="/">CombatCall</a> › UFC Predictions › {event.name}
+    </nav>
+
+    <h1>{event.name}: Predictions, Picks &amp; Analysis</h1>
+    <p class="lede">
+      <span class="serif">CombatCall</span>'s data-driven read on all
+      {event.fights.length} fights — {prettyDate}{
+        event.location ? `, ${event.location}` : ''
+      }. Full stats and matchup analysis are free on every fight. The opening
+      prelim picks are shown below; the rest unlock with a free email.
+    </p>
+
+    {
+      mainCard.length > 0 && (
+        <>
+          <h2>Main Card</h2>
+          {mainCard.map((f) => (
+            <FightCard fight={f} linkToMatchup />
+          ))}
+        </>
+      )
+    }
+
+    {
+      prelims.length > 0 && (
+        <>
+          <h2>Prelims</h2>
+          {prelims.map((f) => (
+            <FightCard fight={f} linkToMatchup />
+          ))}
+        </>
+      )
+    }
+
+    <EmailGate source={`event_${event.slug}`} />
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      {
+        faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </section>
+  </div>
+</SeoLayout>

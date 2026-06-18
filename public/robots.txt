@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap — generated at build time by @astrojs/sitemap
+Sitemap: https://combatcall.com/sitemap-index.xml

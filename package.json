@@ -1,0 +1,18 @@
+{
+  "name": "combatcall-landing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@supabase/supabase-js": "^2.45.4",
+    "astro": "^5.14.1",
+    "posthog-js": "^1.205.0"
+  }
+}

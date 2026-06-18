@@ -1,0 +1,142 @@
+---
+// EmailGate — the SEO funnel's email capture + pick-unlock.
+//
+// Locked model picks are rendered server-side but visually obscured (blurred +
+// overlay) so the page is fully crawlable (the text is in the HTML for SEO) yet
+// gated for humans until they hand over an email. On submit we:
+//   1. insert into Supabase `marketing_emails` via the anon key (the table's
+//      public-insert RLS policy allows this — same destination as the app's
+//      /api/captureEmail), tagging a per-page `source`,
+//   2. set localStorage cc_email_captured so the gate stays unlocked,
+//   3. fire the PostHog `email_captured` event (attribution).
+// Returning visitors (flag already set) see picks immediately. Subscribers are
+// pushed to app.combatcall.com to sign in for the full card.
+//
+// Props:
+//   source — per-page UTM/source tag stored with the email (e.g. the slug).
+export interface Props {
+  source: string;
+}
+const { source } = Astro.props;
+---
+
+<div class="cc-gate" data-source={source}>
+  <div class="cc-gate-inner">
+    <p class="cc-gate-kicker">Unlock the full card free</p>
+    <h3 class="cc-gate-title">See every model pick on this card.</h3>
+    <p class="cc-gate-sub">
+      Drop your email to reveal the locked picks. The opening prelims are already
+      shown free above. Already subscribed?
+      <a href="https://app.combatcall.com/login">Sign in</a>.
+    </p>
+    <form class="cc-gate-form" novalidate>
+      <input
+        type="email"
+        name="email"
+        autocomplete="email"
+        required
+        placeholder="you@example.com"
+        aria-label="Email address"
+      />
+      <button type="submit">Unlock picks</button>
+    </form>
+    <p class="cc-gate-consent">
+      We'll email you fight-week analytics. Unsubscribe anytime. By continuing you
+      agree to our <a href="https://app.combatcall.com/terms">Terms</a> and
+      <a href="/privacy">Privacy Policy</a>.
+    </p>
+    <p class="cc-gate-err" hidden></p>
+  </div>
+</div>
+
+<script>
+  import { track } from '../lib/analyticsClient';
+
+  const LS_CAPTURED = 'cc_email_captured';
+  const LS_EMAIL = 'cc_email';
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Public-by-design keys (same posture as the app: anon key ships in the
+  // bundle, RLS protects the data). Injected at build time via Vite define.
+  const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string;
+  const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string;
+
+  const gates = Array.from(
+    document.querySelectorAll<HTMLElement>('.cc-gate')
+  );
+
+  function hasCaptured(): boolean {
+    try {
+      return localStorage.getItem(LS_CAPTURED) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  // Reveal the locked picks AND hide every gate — the two always happen together.
+  function unlock(): void {
+    document.documentElement.classList.add('cc-unlocked');
+    for (const g of gates) g.hidden = true;
+  }
+
+  // Idempotent email capture straight to PostgREST (the table's public-insert
+  // RLS allows the anon key; unique(email) + ignore-duplicates makes re-entry a
+  // no-op). Plain fetch keeps supabase-js out of the page bundle for one INSERT.
+  async function captureEmail(email: string, source: string): Promise<void> {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return; // preview without keys
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/marketing_emails`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=ignore-duplicates,return=minimal',
+      },
+      body: JSON.stringify({ email, source, marketing_consent: true }),
+    });
+    if (!res.ok) throw new Error(`capture failed (${res.status})`);
+  }
+
+  // Returning visitor — reveal immediately.
+  if (hasCaptured()) unlock();
+
+  for (const gate of gates) {
+    const form = gate.querySelector<HTMLFormElement>('.cc-gate-form');
+    const input = gate.querySelector<HTMLInputElement>('input[name="email"]');
+    const errEl = gate.querySelector<HTMLElement>('.cc-gate-err');
+    const source = gate.dataset.source || 'seo_ufc';
+    if (!form || !input) continue;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (input.value || '').trim().toLowerCase();
+      if (!EMAIL_RE.test(email)) {
+        if (errEl) {
+          errEl.textContent = 'Enter a valid email address.';
+          errEl.hidden = false;
+        }
+        return;
+      }
+      const btn = form.querySelector('button');
+      if (btn) btn.setAttribute('disabled', 'true');
+
+      try {
+        await captureEmail(email, source);
+        try {
+          localStorage.setItem(LS_CAPTURED, 'true');
+          localStorage.setItem(LS_EMAIL, email);
+        } catch {
+          /* private browsing — gate re-shows next visit, acceptable */
+        }
+        track('email_captured', { source, marketing_consent: true });
+        unlock();
+      } catch {
+        if (errEl) {
+          errEl.textContent = 'Could not save email. Please try again.';
+          errEl.hidden = false;
+        }
+        if (btn) btn.removeAttribute('disabled');
+      }
+    });
+  }
+</script>

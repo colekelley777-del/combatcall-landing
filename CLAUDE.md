@@ -1,11 +1,18 @@
 # combatcall-landing — agent notes
 
-This is CombatCall's static marketing site. It used to be a Framer page; it now lives
-here as a single `index.html` with inline CSS and a sprinkle of vanilla JS. The point
-is maintainability: Cole isn't technical, so future copy edits are done by Bedivere
-(me) editing the HTML directly. No build step, no framework.
+This is CombatCall's public site. It is now an **Astro static-site build** (issue
+#5, Programmatic SEO Engine). TWO surfaces, one build:
 
-## Where to find things in `index.html`
+1. **Marketing site** — `public/index.html` + `public/privacy.html`: the original
+   hand-written pages, served VERBATIM at `/` and `/privacy` (Astro does not touch
+   them — hero video and all). Edit copy by editing those HTML files directly, the
+   same as before. No framework knowledge needed for copy edits.
+2. **Programmatic-SEO `/ufc/` pages** — generated at build time from Supabase. See
+   `README.md` for the full architecture (data layer, ranking reuse, gate, SEO).
+
+Build: `npm run build` (needs Supabase anon key/URL in env). Output `dist/`.
+
+## Where to find things in `public/index.html`
 
 The file is organized into clearly labeled sections — search for the section name
 in either the HTML comment marker (`<!-- SECTION: ... -->`) or the CSS comment

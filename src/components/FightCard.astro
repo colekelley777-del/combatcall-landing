@@ -1,0 +1,119 @@
+---
+// One fight's block: matchup header, fighter stat comparison, the model's
+// analysis bullets (public on every fight), and the model PICK — shown in full
+// for the opening prelims, blurred/locked behind the email gate otherwise.
+//
+// The locked pick text IS rendered in the HTML (so it's crawlable) but visually
+// obscured via CSS until the visitor unlocks it. The analysis + stats are always
+// public — only the actual pick is gated, per the Cole-confirmed rule.
+
+import type { FightView } from '../lib/data';
+import {
+  cardPickLabel,
+  cardLine,
+  cardOurRead,
+  cardAnalysisBullets,
+} from '../lib/cardRender';
+
+export interface Props {
+  fight: FightView;
+  /** When true, link the matchup title to its own page (event page only). */
+  linkToMatchup?: boolean;
+}
+
+const { fight, linkToMatchup = false } = Astro.props;
+const { red, blue, ranked, pickIsFree, weightClass } = fight;
+
+const pick = ranked.pick;
+const pickBet = pick ? cardPickLabel(pick) : null;
+const pickLine = pick ? cardLine(pick) : null;
+const pickRead = pick ? cardOurRead(pick) : null;
+
+// Analysis = the bullets from the fight's top-ranked cards (the model's read),
+// always public. We pull from the top few ranked cards so the analysis is
+// substantive without dumping the entire bet list, deduping across them.
+const uniqueAnalysis = Array.from(
+  new Set(ranked.cards.slice(0, 4).flatMap(cardAnalysisBullets))
+).slice(0, 6);
+
+const fmtStat = (n: number | null, suffix = '') =>
+  n == null ? '—' : `${n}${suffix}`;
+const recStr = (r: { wins: number; losses: number; draws: number }) =>
+  r.draws ? `${r.wins}-${r.losses}-${r.draws}` : `${r.wins}-${r.losses}`;
+---
+
+<article class="fight">
+  <div class="fight-head">
+    <div class="fight-title">
+      {
+        linkToMatchup ? (
+          <a href={`/ufc/${fight.matchupSlug}-prediction`}>
+            {red.name} vs. {blue.name}
+          </a>
+        ) : (
+          <span>
+            {red.name} vs. {blue.name}
+          </span>
+        )
+      }
+    </div>
+    <div class="fight-meta">
+      {weightClass || 'UFC'}{fight.isMainEvent ? ' · Main Event' : ''}
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="l fname">{red.name}</div>
+    <div class="lbl"></div>
+    <div class="r fname">{blue.name}</div>
+
+    <div class="l">{recStr(red.record)}</div>
+    <div class="lbl">Record</div>
+    <div class="r">{recStr(blue.record)}</div>
+
+    <div class="l">{fmtStat(red.slpm)}</div>
+    <div class="lbl">Strikes/min</div>
+    <div class="r">{fmtStat(blue.slpm)}</div>
+
+    <div class="l">{fmtStat(red.str_acc, '%')}</div>
+    <div class="lbl">Str. Acc.</div>
+    <div class="r">{fmtStat(blue.str_acc, '%')}</div>
+
+    <div class="l">{fmtStat(red.str_def, '%')}</div>
+    <div class="lbl">Str. Def.</div>
+    <div class="r">{fmtStat(blue.str_def, '%')}</div>
+
+    <div class="l">{fmtStat(red.td_avg)}</div>
+    <div class="lbl">TD/15min</div>
+    <div class="r">{fmtStat(blue.td_avg)}</div>
+  </div>
+
+  {
+    uniqueAnalysis.length > 0 && (
+      <div class="analysis">
+        <h3>Model analysis</h3>
+        <ul>
+          {uniqueAnalysis.map((b) => (
+            <li>{b}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    pick && pickBet && (
+      <div class={pickIsFree ? 'pick' : 'pick locked'}>
+        <div class="pick-body">
+          <div class="pick-lbl">Model pick</div>
+          <div class="pick-bet">{pickBet}</div>
+          {pickLine && <div class="pick-line">Line: {pickLine}</div>}
+          {pickRead && <div class="pick-read">{pickRead}</div>}
+        </div>
+        {!pickIsFree && (
+          <div class="pick-overlay">🔒 Unlock this pick free below</div>
+        )}
+      </div>
+    )
+  }
+</article>
