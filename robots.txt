@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Sitemap — will be generated at build time once Astro conversion lands
+# Update this to /sitemap-index.xml after the pseo-phase1 PR merges
+Sitemap: https://combatcall.com/sitemap.xml
