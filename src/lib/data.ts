@@ -196,7 +196,17 @@ async function buildNextEvent(): Promise<EventView | null> {
     .eq('cancelled', false);
   if (fightsErr) throw fightsErr;
 
-  const fights = fightsRaw || [];
+  const rawFights = fightsRaw || [];
+  // Guard against incomplete Supabase joins: a null fighter_red_id/fighter_blue_id
+  // (or a missing related row) yields a fighter with name '' downstream, which
+  // produces an invalid '-vs--prediction' slug and a blank, indexable fight card.
+  // Skip those fights entirely rather than generate broken pages.
+  const fights = rawFights.filter((f: any) => f.red_fighter && f.blue_fighter);
+  if (fights.length < rawFights.length) {
+    console.warn(
+      `[SEO] ${rawFights.length - fights.length} fight(s) on ${ev.name} have null fighter refs — skipped.`
+    );
+  }
   if (fights.length === 0) {
     console.log(
       `[SEO] ${ev.name} (${ev.event_date}) has no active fights — 0 UFC pages will be generated.`

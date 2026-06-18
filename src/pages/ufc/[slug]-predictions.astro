@@ -101,7 +101,11 @@ const schemas = [
       )
     }
 
-    <EmailGate source={`event_${event.slug}`} />
+    {
+      event.fights.some((f) => !f.pickIsFree) && (
+        <EmailGate source={`event_${event.slug}`} />
+      )
+    }
 
     <section class="faq">
       <h2>FAQ</h2>
