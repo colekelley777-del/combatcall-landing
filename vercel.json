@@ -1,19 +1,37 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "astro build",
+  "outputDirectory": "dist",
+  "framework": "astro",
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
     {
       "source": "/landing-hero-video.mp4",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=31536000" },
         { "key": "Accept-Ranges", "value": "bytes" }
       ]
     },
     {
       "source": "/(.*)\\.(png|jpg|jpeg|svg|webp|ico)",
       "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/_astro/(.*)",
+      "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/ufc/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
+        }
       ]
     },
     {

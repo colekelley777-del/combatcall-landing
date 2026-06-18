@@ -1,7 +1,6 @@
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="en">
 <head>
-<script>document.documentElement.classList.replace('no-js','js');</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CombatCall — Smarter UFC Betting Starts With Data</title>
@@ -151,9 +150,19 @@ h2.section-title {
   transition: transform .12s linear;
 }
 
-/* Base reveal: invisible + slight offset, settles on .in.
+/* Reveal-on-scroll: content is VISIBLE BY DEFAULT so it always paints
+   without JS (slow script, failed script, limited-JS crawlers all see it).
+   The entrance animation is opt-in progressive enhancement: JS adds .armed
+   to set the hidden/offset start state only at the moment it arms the
+   IntersectionObserver, then swaps .armed -> .in to animate in. If JS never
+   runs, .armed is never added and the content simply stays visible.
    Children of a [data-stagger] container animate sequentially via --i. */
 .reveal {
+  opacity: 1;
+  transform: none;
+}
+/* Start state, applied by JS only when the observer is armed. */
+.reveal.armed {
   opacity: 0;
   transform: translate3d(0, 24px, 0);
   transition:
@@ -162,19 +171,16 @@ h2.section-title {
   transition-delay: calc(var(--i, 0) * 90ms);
   will-change: opacity, transform;
 }
-.reveal.in { opacity: 1; transform: none; }
-.reveal.in.settled { will-change: auto; }
+.reveal.armed.in { opacity: 1; transform: none; }
+.reveal.armed.in.settled { will-change: auto; }
 
-/* Directional variants */
-.reveal.from-left  { transform: translate3d(-32px, 0, 0); }
-.reveal.from-right { transform: translate3d(32px, 0, 0); }
-.reveal.scale-in   { transform: scale(.94); }
-.reveal.in.from-left,
-.reveal.in.from-right,
-.reveal.in.scale-in { transform: none; }
-
-/* No-JS / no-IntersectionObserver fallback — never trap content invisible */
-.no-js .reveal { opacity: 1; transform: none; transition: none; }
+/* Directional variants (only meaningful once armed) */
+.reveal.armed.from-left  { transform: translate3d(-32px, 0, 0); }
+.reveal.armed.from-right { transform: translate3d(32px, 0, 0); }
+.reveal.armed.scale-in   { transform: scale(.94); }
+.reveal.armed.in.from-left,
+.reveal.armed.in.from-right,
+.reveal.armed.in.scale-in { transform: none; }
 
 /* ============================================================
    HEADER / NAV
@@ -936,7 +942,8 @@ footer {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-  .reveal { opacity: 1; transform: none; }
+  /* Force content visible regardless of any JS-applied .armed start state */
+  .reveal, .reveal.armed { opacity: 1; transform: none; }
 }
 </style>
 <!-- PostHog product analytics. Public project key (phc_) — safe to inline,
@@ -1490,22 +1497,45 @@ footer {
   const reducedMotion =
     window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // --- Reveal on scroll ---
+  // --- Reveal on scroll (progressive enhancement) -------------------
+  // Content is visible by default (CSS). We only animate the entrance when
+  // JS is running, IntersectionObserver exists, and motion is allowed. We
+  // "arm" each element (add .armed -> hides it) at the moment we observe it,
+  // then add .in to animate it back in. A hard load+timeout failsafe force-
+  // reveals everything if the observer never fires, so content can never get
+  // stuck invisible. With no JS / no IO / reduced motion, nothing is armed
+  // and the content simply stays visible.
   const reveals = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window) {
+  // Disarming snaps an element back to the base (visible, no transition) state.
+  const forceReveal = () => reveals.forEach(el => el.classList.remove('armed'));
+
+  if (reducedMotion || !('IntersectionObserver' in window)) {
+    // Leave content at its default-visible state; no animation.
+  } else {
+    let observerFired = false;
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
+          observerFired = true;
           e.target.classList.add('in');
-          // mark settled to release will-change after the animation finishes
+          // release will-change after the animation finishes
           setTimeout(() => e.target.classList.add('settled'), 1200);
           io.unobserve(e.target);
         }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    reveals.forEach(el => io.observe(el));
-  } else {
-    reveals.forEach(el => el.classList.add('in'));
+
+    // Arm + observe. Arming hides the element; the observer animates it in.
+    reveals.forEach(el => { el.classList.add('armed'); io.observe(el); });
+
+    // Failsafe: above-the-fold elements should reveal almost immediately. If
+    // the observer hasn't fired at all shortly after load, assume it's broken
+    // and force everything visible so content can never stay hidden.
+    const failsafe = () => setTimeout(() => {
+      if (!observerFired) forceReveal();
+    }, 1500);
+    if (document.readyState === 'complete') failsafe();
+    else window.addEventListener('load', failsafe, { once: true });
   }
 
   // --- Number counters (stats band) ---------------------------------
@@ -1562,14 +1592,25 @@ footer {
   if (shouldLoadVideo && heroSlot) {
     heroVideo = document.createElement('video');
     heroVideo.className = 'hero-video';
-    heroVideo.src = 'landing-hero-video.mp4';
     heroVideo.autoplay = true;
     heroVideo.muted = true;
     heroVideo.loop = true;
     heroVideo.playsInline = true;
-    heroVideo.preload = 'metadata';
+    // poster paints instantly (brand still) so there's never a black frame;
+    // preload="none" means the 5.7MB file is never prefetched during load —
+    // autoplay fetches it only once the element is live. Together with the
+    // post-load injection below, the video can never drag first paint.
+    heroVideo.poster = 'og-image.png';
+    heroVideo.preload = 'none';
     heroVideo.setAttribute('aria-hidden', 'true');
     heroSlot.replaceWith(heroVideo);
+    // Assign src after insertion so the fetch starts off the critical path.
+    const startVideo = () => {
+      heroVideo.src = 'landing-hero-video.mp4';
+      heroVideo.load();
+    };
+    if (document.readyState === 'complete') startVideo();
+    else window.addEventListener('load', startVideo, { once: true });
   }
 
   // --- Hero video parallax ------------------------------------------

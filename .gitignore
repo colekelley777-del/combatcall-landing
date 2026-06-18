@@ -1,1 +1,8 @@
 .vercel
+node_modules
+dist
+.astro
+.env
+.env.local
+.env.*.local
+src/env.d.ts
