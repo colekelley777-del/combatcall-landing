@@ -956,6 +956,35 @@ footer {
     person_profiles: 'identified_only'
   });
 </script>
+<!-- Meta (Facebook) Pixel — ad-conversion tracking for the weekend test.
+     This file is served VERBATIM (Astro does not process public/), so there's
+     no build-time env injection here — unlike the /ufc/ SEO pages, which read
+     import.meta.env.PUBLIC_META_PIXEL_ID. We therefore source the ID from a
+     runtime config global. It is EMPTY by default, so the pixel is a silent
+     no-op (mirrors the env-gated contract elsewhere) and this file is safe to
+     ship before the pixel even exists.
+
+     TO ACTIVATE: paste the Pixel ID from Meta Events Manager into
+     window.__META_PIXEL_ID__ below (one-line edit) and set the same value in
+     the PUBLIC_META_PIXEL_ID Vercel env var (for the SEO pages). The pixel ID
+     is public-by-design (same class as the phc_ key / Supabase anon key). -->
+<script>
+  // Cole: set this to the Meta Pixel ID when the pixel is created. Empty = off.
+  window.__META_PIXEL_ID__ = '';
+</script>
+<script>
+  (function () {
+    var pixelId = window.__META_PIXEL_ID__;
+    if (!pixelId) return; // no ID configured → silent no-op
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', pixelId);
+    fbq('track', 'PageView');
+  })();
+</script>
 </head>
 <body>
 
@@ -1660,6 +1689,27 @@ footer {
       });
     });
   }
+
+  // --- UTM forwarding across the domain hop ---
+  // Cold ad traffic lands here (combatcall.com) carrying the campaign UTMs, then
+  // the CTAs send them to app.combatcall.com. Append the current query string to
+  // every app.combatcall.com link so each captured email is attributable to its
+  // ad/creative/audience. First-touch wins: never clobber a param a link already
+  // sets. Wrapped so a bad URL can never break navigation.
+  (function forwardUtms() {
+    try {
+      const search = window.location.search;
+      if (!search || search.length <= 1) return; // nothing to forward
+      const incoming = new URLSearchParams(search);
+      document.querySelectorAll('a[href*="app.combatcall.com"]').forEach((a) => {
+        const url = new URL(a.href);
+        incoming.forEach((val, key) => {
+          if (!url.searchParams.has(key)) url.searchParams.set(key, val);
+        });
+        a.href = url.toString();
+      });
+    } catch (_) { /* never break navigation over attribution */ }
+  })();
 
   // --- CTA click tracking (PostHog) ---
   // Event delegation: one listener catches clicks on any element carrying a

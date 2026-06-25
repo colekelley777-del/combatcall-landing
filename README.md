@@ -48,6 +48,28 @@ product. `src/lib/cardRender.ts` renders the model's already-English strings
 `localStorage.cc_email_captured`, and fires the PostHog `email_captured` event.
 Page views are auto-captured by PostHog (`src/lib/analyticsClient.ts`).
 
+### Ad tracking (Meta Pixel + UTM forwarding)
+
+`src/lib/analyticsClient.ts` also wraps the Meta (Facebook) Pixel — `initMetaPixel()`
+(standard `PageView` on load) and `trackMetaEvent()` — both env-gated on
+`PUBLIC_META_PIXEL_ID` (silent no-op when unset, same contract as PostHog).
+`SeoLayout.astro` inits the pixel; `EmailGate.astro` fires the standard `Lead`
+event on capture (tagged with the page `source`). `forwardUtmsToAppLinks()`
+(called in `SeoLayout`) appends the incoming ad UTMs onto every
+`app.combatcall.com` CTA so attribution survives the landing → app domain hop.
+Server-side Conversions API (CAPI) is a future upgrade — see the `TODO(CAPI)`
+markers.
+
+> **Two surfaces, one important caveat.** The /ufc/ SEO pages get the pixel via
+> `import.meta.env.PUBLIC_META_PIXEL_ID` (Vite build-time injection). The
+> hand-written homepage `public/index.html` is served **verbatim** (Astro does
+> not process `public/`), so it has **no env injection** — its pixel reads a
+> runtime `window.__META_PIXEL_ID__` config global (empty = no-op) set inline in
+> that file. When the pixel exists, set BOTH `PUBLIC_META_PIXEL_ID` (Vercel env,
+> for SEO pages) AND `window.__META_PIXEL_ID__` in `public/index.html` (one-line
+> edit, for the homepage) to the same ID. The homepage also has its own inline
+> UTM-forwarding block (same job, no env needed).
+
 ### SEO
 
 Per-page unique `<title>` / meta / canonical / OG, schema.org (SportsEvent +
@@ -70,6 +92,9 @@ Required env (see `.env.example`):
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY` — build-time fetch (server).
 - `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY` — client (email capture).
 - `PUBLIC_POSTHOG_KEY` (optional) — analytics; no key = no-op.
+- `PUBLIC_META_PIXEL_ID` (optional) — Meta ad pixel on the SEO pages; no ID =
+  no-op. The homepage (`public/index.html`) reads its own inline
+  `window.__META_PIXEL_ID__` instead (Astro doesn't process `public/`).
 
 The anon/publishable keys are public-by-design (they ship in the client bundle;
 RLS protects the data) — same posture as the app.

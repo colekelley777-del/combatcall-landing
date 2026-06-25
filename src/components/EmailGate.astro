@@ -55,7 +55,7 @@ const { source } = Astro.props;
 </div>
 
 <script>
-  import { track } from '../lib/analyticsClient';
+  import { track, trackMetaEvent } from '../lib/analyticsClient';
 
   const LS_CAPTURED = 'cc_email_captured';
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -155,6 +155,11 @@ const { source } = Astro.props;
         // track() reads the global window.posthog, so it fires even though this
         // component script is a separate module instance from SeoLayout's init().
         track('email_captured', { source, marketing_consent: true });
+        // Meta Pixel — the standard `Lead` event we optimize ad delivery toward.
+        // `source` (the page slug) distinguishes which SEO page converted. No-op
+        // without PUBLIC_META_PIXEL_ID.
+        // TODO(CAPI for July 11): also fire a server-side Lead with event-id dedup.
+        trackMetaEvent('Lead', { source });
         unlock();
       } catch {
         if (errEl) {
