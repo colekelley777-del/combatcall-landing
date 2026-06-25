@@ -515,8 +515,17 @@ const ogImage = OG_IMAGE;
     </footer>
 
     <script>
-      import { initAnalytics } from '../lib/analyticsClient';
+      import {
+        initAnalytics,
+        initMetaPixel,
+        forwardUtmsToAppLinks,
+      } from '../lib/analyticsClient';
       initAnalytics();
+      // Meta Pixel — fires standard PageView. No-op without PUBLIC_META_PIXEL_ID.
+      initMetaPixel();
+      // Carry the ad's UTMs onto every app.combatcall.com CTA so attribution
+      // survives the cross-domain hop to the app.
+      forwardUtmsToAppLinks();
     </script>
   </body>
 </html>
